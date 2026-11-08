@@ -1,0 +1,780 @@
+/* صفحة الكورس: الموديولات في عمود، والاختبارات في عمود جانبي ثابت على الشاشات الكبيرة */
+
+.page {
+    background-color: #fbf6f6;
+    min-height: 100vh;
+    color: #2a1a1d;
+}
+
+.grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-width: 1200px;
+    margin: 16px auto 32px;
+    padding: 0 16px;
+}
+
+.sidebar {
+    display: contents;
+}
+
+/* ===== رأس الصفحة ===== */
+.header {
+    order: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 0 18px;
+    text-align: center;
+}
+
+.title {
+    margin: 0;
+    font-size: clamp(22px, 2.3vw, 30px);
+    font-weight: 900;
+    line-height: 1.25;
+}
+
+.subtitle {
+    margin: 0;
+    color: #63585a;
+    font-size: clamp(14px, 1.1vw, 15px);
+}
+
+.status {
+    margin-top: 4px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid #ecdcdd;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.statusApproved {
+    background: #dfe6c6;
+    color: #46553a;
+}
+
+.statusTrial {
+    background: #f7e6e8;
+    color: #7a1f2b;
+}
+
+/* ===== الموديولات ===== */
+.modules {
+    order: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 20px;
+    background: #ffffff;
+    border: 1px solid #ecdcdd;
+    border-radius: 16px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.cardOpen {
+    cursor: pointer;
+}
+
+.cardOpen:hover {
+    transform: translateY(-2px);
+    border-color: #e4a3ab;
+    box-shadow: 0 6px 16px rgba(122, 31, 43, 0.12);
+}
+
+.cardSoon {
+    background: #faf5e7;
+    box-shadow: none;
+}
+
+.cardLocked {
+    cursor: pointer;
+}
+
+.cardBody {
+    flex: 1;
+    min-width: 0;
+}
+
+.cardTop {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.pill {
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.pillModule {
+    background: #f1e8e9;
+    color: #2a1a1d;
+}
+
+.pillFree {
+    background: #dfe6c6;
+    color: #46553a;
+}
+
+.pillLast {
+    background: #f7e6e8;
+    color: #7a1f2b;
+}
+
+.pillSoon {
+    background: #efe8d6;
+    color: #7a6f58;
+}
+
+.moduleTitle {
+    margin: 0;
+    font-size: clamp(15px, 1.4vw, 18px);
+    font-weight: 800;
+    line-height: 1.35;
+    direction: ltr;
+    text-align: right;
+}
+
+.cardSoon .moduleTitle {
+    color: #6b6553;
+}
+
+.desc {
+    margin: 4px 0 0;
+    color: #63585a;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.cardSoon .desc {
+    color: #7a7462;
+}
+
+.chapters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.chip {
+    padding: 3px 10px;
+    background: #faf3f4;
+    border: 1px solid #ecdcdd;
+    border-radius: 999px;
+    color: #63585a;
+    font-size: 11.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    text-decoration: none;
+    direction: ltr;
+}
+
+a.chip {
+    color: #7a1f2b;
+}
+
+a.chip:hover {
+    background: #f7e6e8;
+    border-color: #e4a3ab;
+}
+
+.cardSoon .chip {
+    background: transparent;
+    color: #8a8370;
+}
+
+.progress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 800;
+    color: #46553a;
+}
+
+.progressTrack {
+    flex: 1;
+    max-width: 320px;
+    height: 6px;
+    background: #f1e8e9;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.progressFill {
+    display: block;
+    height: 100%;
+    background: #7d8f5c;
+    border-radius: 999px;
+}
+
+.startBtn {
+    flex-shrink: 0;
+    padding: 10px 18px;
+    background: #7a1f2b;
+    color: #ffffff;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.15s;
+}
+
+.startBtn:hover {
+    background: #754517;
+}
+
+.startBtnLocked {
+    background: #efe8d6;
+    color: #7a6f58;
+}
+
+.startBtnLocked:hover {
+    background: #e6dcc4;
+}
+
+/* ===== الاختبارات والفاينل ===== */
+.panel {
+    background: #ffffff;
+    border: 1px solid #ecdcdd;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+/* في الجوال الكويزات والميد في صف واحد */
+.examsRow {
+    order: 2;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: stretch;
+}
+
+.finalBox {
+    order: 4;
+}
+
+.panelTitle {
+    margin: 0 0 12px;
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.exams {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.exam {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    color: #63585a;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.examCircle {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid #dfd5bd;
+    background: #f5efe0;
+    color: #7a6f58;
+    font-size: 13px;
+    font-weight: 900;
+    transition: transform 0.15s;
+}
+
+.exam:hover .examCircle {
+    transform: scale(1.06);
+}
+
+.examOpen .examCircle {
+    border: 2px solid #e4a3ab;
+    background: #f7e6e8;
+    color: #7a1f2b;
+}
+
+.lock {
+    position: absolute;
+    right: -4px;
+    bottom: -4px;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border: 1px solid #dfd5bd;
+    border-radius: 50%;
+    font-size: 9px;
+}
+
+/* الميد: بطاقة مستقلة */
+.midCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #ecdcdd;
+    border-radius: 16px;
+    padding: 16px 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    cursor: pointer;
+    color: #63585a;
+    font-size: 11px;
+    font-weight: 800;
+    transition: border-color 0.15s;
+}
+
+.midCard:hover {
+    border-color: #e4a3ab;
+}
+
+.midText {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.midName {
+    font-size: 11px;
+}
+
+.midState {
+    display: none;
+}
+
+.midOpen .examCircle {
+    border: 2px solid #e4a3ab;
+    background: #f7e6e8;
+    color: #7a1f2b;
+}
+
+/* الفاينل: بطاقة مميزة لأنها هدف الكورس */
+.finalBox {
+    position: relative;
+    overflow: hidden;
+    padding: 18px;
+    border-radius: 16px;
+    background: linear-gradient(145deg, #7a1f2b 0%, #5a1520 100%);
+    color: #fbf6f6;
+    box-shadow: 0 8px 20px rgba(90, 21, 32, 0.25);
+}
+
+/* كأس كبير خفيف في الخلفية */
+.finalBox::after {
+    content: '🏆';
+    position: absolute;
+    left: -8px;
+    bottom: -14px;
+    font-size: 84px;
+    line-height: 1;
+    opacity: 0.16;
+    pointer-events: none;
+}
+
+.finalEyebrow {
+    display: inline-block;
+    margin-bottom: 8px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgba(251, 246, 246, 0.16);
+    font-size: 11.5px;
+    font-weight: 800;
+}
+
+.finalName {
+    margin: 0 0 4px;
+    font-size: 19px;
+    font-weight: 900;
+}
+
+.finalDesc {
+    position: relative;
+    z-index: 1;
+    margin: 0 0 14px;
+    font-size: 13px;
+    color: #f2d4d8;
+    line-height: 1.5;
+}
+
+.finalBtn {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid rgba(251, 246, 246, 0.35);
+    border-radius: 10px;
+    background: rgba(251, 246, 246, 0.12);
+    color: #fbf6f6;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.finalBtn:hover {
+    background: rgba(251, 246, 246, 0.2);
+}
+
+.finalOpen .finalBtn {
+    background: #fbf6f6;
+    border-color: #fbf6f6;
+    color: #5a1520;
+}
+
+.finalOpen .finalBtn:hover {
+    background: #f7e6e8;
+}
+
+/* ===== التنبيه ===== */
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.dialog {
+    width: 100%;
+    max-width: 400px;
+    padding: 24px;
+    background: #fbf6f6;
+    border: 1px solid #ecdcdd;
+    border-radius: 16px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    text-align: center;
+}
+
+.dialogText {
+    margin: 0 0 18px;
+    font-size: 15px;
+    line-height: 1.6;
+    font-weight: 700;
+}
+
+.dialogBtn {
+    width: 100%;
+    padding: 10px 16px;
+    background: #7a1f2b;
+    color: #ffffff;
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 14px;
+}
+
+.loading {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fbf6f6;
+    color: #5a4a4d;
+    font-weight: 800;
+}
+
+/* ===== الجوال ===== */
+/* عنوان الموديولات يظهر في الجوال فقط، لأن عنوان الصفحة في الكمبيوتر يكفي */
+.modulesTitle {
+    display: none;
+}
+
+@media (max-width: 767px) {
+    .header {
+        padding: 26px 0 44px;
+        gap: 12px;
+    }
+
+    .modulesTitle {
+        display: block;
+        order: 3;
+        flex-shrink: 0;
+        margin: 4px 4px -4px;
+        font-size: 18px;
+        font-weight: 900;
+        color: #2a1a1d;
+    }
+
+    /* مربع الاختبارات أقصر في الجوال */
+    .panel {
+        padding: 10px 12px;
+    }
+
+    .panelTitle {
+        margin: 0 0 8px;
+        font-size: 14px;
+    }
+
+    .examCircle {
+        width: 36px;
+        height: 36px;
+        font-size: 12px;
+    }
+
+    .lock {
+        width: 15px;
+        height: 15px;
+        font-size: 8px;
+    }
+
+    .midCard {
+        padding: 10px 8px;
+    }
+
+    .card {
+        padding: 12px 14px;
+        gap: 10px;
+    }
+
+    .desc {
+        display: none;
+    }
+
+    .startBtn {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    .chip {
+        font-size: 11px;
+        padding: 2px 8px;
+    }
+}
+
+/* ===== الشاشات الكبيرة: عمودان ===== */
+@media (min-width: 768px) {
+    .grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 290px;
+        grid-template-areas:
+            "header sidebar"
+            "modules sidebar";
+        grid-template-rows: auto 1fr;
+        align-items: start;
+        gap: 14px 18px;
+        width: 100%;
+    }
+
+    .header {
+        grid-area: header;
+    }
+
+    .modules {
+        grid-area: modules;
+    }
+
+    .sidebar {
+        grid-area: sidebar;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        position: sticky;
+        top: 14px;
+    }
+
+    /* الكويزات لحالها والميد لحاله */
+    .examsRow {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .midCard {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 12px;
+        padding: 12px 16px;
+        text-align: right;
+    }
+
+    .midName {
+        font-size: 16px;
+        font-weight: 900;
+        color: #2a1a1d;
+    }
+
+    .midState {
+        display: block;
+        font-size: 12px;
+        font-weight: 800;
+        color: #7a6f58;
+    }
+
+    .midOpen .midState {
+        color: #46553a;
+    }
+}
+
+@media (min-width: 1024px) {
+    .grid {
+        grid-template-columns: minmax(0, 1fr) 320px;
+    }
+}
+
+/* الصفحة ثابتة والسكرول داخل الموديولات فقط، من الآيباد وأكبر.
+   الجوال يبقى فيه سكرول الصفحة كاملة حتى ينزل الطالب من أي مكان.
+   ونطبقها إذا كان ارتفاع الشاشة يكفي، وإلا يبقى سكرول الصفحة حتى لا ينقص شيء */
+@media (min-width: 768px) and (min-height: 520px) {
+    /* في الجوال العناصر فوق بعض: كل شي بحجمه والموديولات تاخذ الباقي */
+    .header,
+    .examsRow,
+    .finalBox {
+        flex-shrink: 0;
+    }
+
+    .modules {
+        flex: 1;
+    }
+
+    .page {
+        height: 100vh;
+        height: 100dvh;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .grid {
+        flex: 1;
+        min-height: 0;
+        margin: 14px auto;
+        grid-template-rows: auto minmax(0, 1fr);
+        align-items: stretch;
+    }
+
+    .modules {
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        /* مسافة حول البطاقات حتى لا ينقص ارتفاعها وظلها لما ترتفع مع الماوس،
+           ومسافة بينها وبين شريط السكرول */
+        padding: 4px;
+        padding-inline-end: 10px;
+    }
+
+    .sidebar {
+        position: static;
+        min-height: 0;
+        overflow-y: auto;
+    }
+
+    /* شكل شريط السكرول من globals.css */
+}
+
+/* ===== الجوال: الاختبارات في نافذة بدل عمودها في الصفحة ===== */
+.examsBtn {
+    height: 32px;
+    padding: 0 10px;
+    background: #ffffff;
+    color: #2a1a1d;
+    border: 1px solid #6b5357;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.examsSheet {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 380px;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 14px;
+    background: #fbf6f6;
+    border: 1px solid #ecdcdd;
+    border-radius: 16px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.examsSheetHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.examsSheetHead h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 900;
+    color: #2a1a1d;
+}
+
+.examsSheetHead button {
+    background: none;
+    border: 0;
+    font-size: 18px;
+    color: #6b5357;
+    cursor: pointer;
+}
+
+/* الفاينل أصغر داخل النافذة */
+.examsSheet .finalBox {
+    padding: 12px 14px;
+}
+
+.examsSheet .finalName {
+    font-size: 16px;
+}
+
+.examsSheet .finalDesc {
+    display: none;
+}
+
+.examsSheet .finalBtn {
+    padding: 8px;
+    font-size: 13px;
+}
+
+@media (max-width: 767px) {
+    /* في صفحة الجوال تظهر الموديولات فقط */
+    .sidebar {
+        display: none;
+    }
+}

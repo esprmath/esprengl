@@ -1,0 +1,8 @@
+node_modules/
+.next/
+.env.local
+*.tsbuildinfo
+.claude/
+
+# ملفات المواد الأصلية (كتب وسلايدات) للرجوع لها فقط، ما ترفع
+/materials/
