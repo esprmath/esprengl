@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import EnglAssistant from '@/components/EnglAssistant'
+import LessonChat from '@/components/LessonChat'
 import Navbar from '@/components/Navbar'
 import { circleLabel, circleStyle } from '@/components/pillStyle'
 
@@ -71,7 +72,8 @@ export default function SideNav({ items, active, onSelect, bottomAction, ai }: {
 
             <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', fontSize: '0.78rem', fontWeight: 'bold' }}>
                 {bottomAction}
-                {items && items.length > 0 && <EnglAssistant variant="sidebar" {...ai} />}
+                {/* داخل الدروس: الذكاء محادثة عادية للأسئلة (برا الدروس خطتي صارت دائرة فوق) */}
+                {items && items.length > 0 && <LessonChat variant="sidebar" {...ai} />}
             </div>
         </aside>
         </>

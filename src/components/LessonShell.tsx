@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import SideNav, { type SideNavItem } from '@/components/SideNav'
 import SiteNavbar from '@/components/SiteNavbar'
 import WordTranslator from '@/components/WordTranslator'
-import EnglAssistant from '@/components/EnglAssistant'
+import LessonChat from '@/components/LessonChat'
 import { pillStyle } from '@/components/pillStyle'
 import type { LessonView } from '@/content/lessons'
 
@@ -71,7 +71,7 @@ export default function LessonShell({ header, children, footer, ai }: { header: 
                             )
                         })}
                     </div>
-                    <EnglAssistant variant="bar" {...ai} />
+                    <LessonChat variant="bar" {...ai} />
                 </div>
 
                 {children}
