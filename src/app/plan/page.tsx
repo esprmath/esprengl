@@ -5,6 +5,7 @@ import PlanBuilder from '@/components/PlanBuilder'
 
 export const metadata: Metadata = {
     title: 'خطة التحسين | EsprEngl',
+    alternates: { canonical: '/plan' },
     description: 'الذكاء يسألك عن مستواك ووش يضايقك في الإنجليزي، ويبني لك خطة تحسين بمراحل واضحة وروتين يومي.',
 }
 

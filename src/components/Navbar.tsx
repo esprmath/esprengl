@@ -377,7 +377,7 @@ export default function Navbar({ isLoggedIn, mobileAction, variant = 'top' }: Na
                                     padding: '0 var(--btn-padding-x)',
                                     backgroundColor: '#ffffff',
                                     color: '#2A1A1D',
-                                    border: '1px solid #6B5357',
+                                    border: '1px solid #ecdcdd',
                                     borderRadius: '8px',
                                     cursor: 'pointer',
                                     fontWeight: 'bold',
@@ -409,7 +409,7 @@ export default function Navbar({ isLoggedIn, mobileAction, variant = 'top' }: Na
                                     borderRadius: '12px',
                                     padding: '1rem',
                                     zIndex: 50,
-                                    border: '1px solid #6B5357',
+                                    border: '1px solid #ecdcdd',
                                     textAlign: 'right',
                                     boxSizing: 'border-box'
                                 }}>
@@ -418,7 +418,7 @@ export default function Navbar({ isLoggedIn, mobileAction, variant = 'top' }: Na
                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '6px 0' }}>
                                             <div>
                                                 <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: 'bold', color: '#2A1A1D' }}>{userName}</p>
-                                                <p style={{ margin: '2px 0 0 0', fontSize: '0.75rem', color: '#7C9E6B', fontWeight: 'bold' }}>
+                                                <p style={{ margin: '2px 0 0 0', fontSize: '0.75rem', color: '#7a1f2b', fontWeight: 'bold' }}>
                                                     {studentId ? <span dir="ltr">@{studentId}</span> : 'بدون اسم مستخدم'}
                                                 </p>
                                             </div>
@@ -430,7 +430,7 @@ export default function Navbar({ isLoggedIn, mobileAction, variant = 'top' }: Na
                                                     width: '28px',
                                                     height: '28px',
                                                     backgroundColor: '#ffffff',
-                                                    border: '2px solid #C4863A',
+                                                    border: '2px solid #7a1f2b',
                                                     borderRadius: '50%',
                                                     cursor: 'pointer',
                                                     padding: 0,
@@ -520,7 +520,7 @@ export default function Navbar({ isLoggedIn, mobileAction, variant = 'top' }: Na
                                     padding: '0 var(--btn-padding-x)',
                                     backgroundColor: '#ffffff',
                                     color: '#2A1A1D',
-                                    border: '1px solid #6B5357',
+                                    border: '1px solid #ecdcdd',
                                     borderRadius: '8px',
                                     fontWeight: 'bold',
                                     cursor: 'pointer',
@@ -534,11 +534,11 @@ export default function Navbar({ isLoggedIn, mobileAction, variant = 'top' }: Na
                             </button>
                             {showAuthDropdown && (
                                 <div style={{ position: 'absolute', ...(variant === 'account' ? { left: '100%', top: 0, paddingLeft: '14px' } : { left: 0, top: '100%', paddingTop: '8px' }), width: '160px', zIndex: 50 }}>
-                                    <div style={{ backgroundColor: '#ffffff', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', borderRadius: '12px', padding: '0.5rem', border: '1px solid #6B5357', display: 'flex', flexDirection: 'column', gap: '4px', boxSizing: 'border-box' }}>
+                                    <div style={{ backgroundColor: '#ffffff', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', borderRadius: '12px', padding: '0.5rem', border: '1px solid #ecdcdd', display: 'flex', flexDirection: 'column', gap: '4px', boxSizing: 'border-box' }}>
                                         <Link href="/login" onClick={() => setShowAuthDropdown(false)} style={{ textDecoration: 'none', color: '#2A1A1D', padding: '0.5rem', borderRadius: '8px', fontSize: '0.875rem' }}>
                                             🔑 تسجيل دخول
                                         </Link>
-                                        <Link href="/signup" onClick={() => setShowAuthDropdown(false)} style={{ textDecoration: 'none', color: '#ffffff', backgroundColor: '#7C9E6B', padding: '0.5rem', borderRadius: '8px', fontSize: '0.875rem', fontWeight: 'bold', textAlign: 'center' }}>
+                                        <Link href="/signup" onClick={() => setShowAuthDropdown(false)} style={{ textDecoration: 'none', color: '#ffffff', backgroundColor: '#7a1f2b', padding: '0.5rem', borderRadius: '8px', fontSize: '0.875rem', fontWeight: 'bold', textAlign: 'center' }}>
                                             ✨ إنشاء حساب
                                         </Link>
                                     </div>
@@ -554,7 +554,7 @@ export default function Navbar({ isLoggedIn, mobileAction, variant = 'top' }: Na
             {/* مودال تعديل الملف الشخصي */}
             {showEditModal && (
                 <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 2500, fontFamily: 'sans-serif', padding: '16px', boxSizing: 'border-box' }}>
-                    <div style={{ backgroundColor: '#ffffff', border: '1px solid #6B5357', padding: '24px', borderRadius: '16px', width: '100%', maxWidth: '380px', boxShadow: '0 15px 30px rgba(0,0,0,0.15)', color: '#2A1A1D', textAlign: 'right', boxSizing: 'border-box' }}>
+                    <div style={{ backgroundColor: '#ffffff', border: '1px solid #ecdcdd', padding: '24px', borderRadius: '16px', width: '100%', maxWidth: '380px', boxShadow: '0 15px 30px rgba(0,0,0,0.15)', color: '#2A1A1D', textAlign: 'right', boxSizing: 'border-box' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                             <h3 style={{ margin: 0, fontSize: '16px', color: '#2A1A1D' }}>✏️ تعديل بيانات الملف الشخصي</h3>
                             <button type="button" onClick={() => setShowEditModal(false)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#6B5357' }}>✕</button>
@@ -569,7 +569,7 @@ export default function Navbar({ isLoggedIn, mobileAction, variant = 'top' }: Na
                                 <input type="text" dir="ltr" value={newStudentId} onChange={(e) => setNewStudentId(e.target.value)} placeholder="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem', boxSizing: 'border-box', textAlign: 'right' }} />
                                 <div style={{ fontSize: '0.72rem', color: '#6B5357', marginTop: '4px' }}>حروف إنجليزية وأرقام و _ فقط. اتركه فاضي إذا ما تبي.</div>
                             </div>
-                            <button type="submit" disabled={loadingName} style={{ width: '100%', padding: '10px', backgroundColor: '#7C9E6B', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginTop: '8px', boxSizing: 'border-box' }}>
+                            <button type="submit" disabled={loadingName} style={{ width: '100%', padding: '10px', backgroundColor: '#7a1f2b', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginTop: '8px', boxSizing: 'border-box' }}>
                                 {loadingName ? 'جاري الحفظ...' : 'حفظ التعديلات'}
                             </button>
                         </form>
@@ -580,7 +580,7 @@ export default function Navbar({ isLoggedIn, mobileAction, variant = 'top' }: Na
             {/* مودال تغيير كلمة المرور */}
             {showPasswordModal && (
                 <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 2500, fontFamily: 'sans-serif', padding: '16px', boxSizing: 'border-box' }}>
-                    <div style={{ backgroundColor: '#ffffff', border: '1px solid #6B5357', padding: '24px', borderRadius: '16px', width: '100%', maxWidth: '380px', boxShadow: '0 15px 30px rgba(0,0,0,0.15)', color: '#2A1A1D', textAlign: 'right', boxSizing: 'border-box' }}>
+                    <div style={{ backgroundColor: '#ffffff', border: '1px solid #ecdcdd', padding: '24px', borderRadius: '16px', width: '100%', maxWidth: '380px', boxShadow: '0 15px 30px rgba(0,0,0,0.15)', color: '#2A1A1D', textAlign: 'right', boxSizing: 'border-box' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                             <h3 style={{ margin: 0, fontSize: '16px', color: '#2A1A1D' }}>🔑 تغيير كلمة المرور</h3>
                             <button type="button" onClick={() => setShowPasswordModal(false)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#6B5357' }}>✕</button>
@@ -609,7 +609,7 @@ export default function Navbar({ isLoggedIn, mobileAction, variant = 'top' }: Na
             {/* مودال التقويم لتحديد موعد الاختبار */}
             {showCalendarModal && (
                 <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 2500, fontFamily: 'sans-serif', padding: '16px', boxSizing: 'border-box' }}>
-                    <div style={{ backgroundColor: '#ffffff', border: '1px solid #6B5357', padding: '20px', borderRadius: '16px', width: '100%', maxWidth: '340px', boxShadow: '0 15px 30px rgba(0,0,0,0.15)', color: '#2A1A1D', textAlign: 'center', boxSizing: 'border-box' }}>
+                    <div style={{ backgroundColor: '#ffffff', border: '1px solid #ecdcdd', padding: '20px', borderRadius: '16px', width: '100%', maxWidth: '340px', boxShadow: '0 15px 30px rgba(0,0,0,0.15)', color: '#2A1A1D', textAlign: 'center', boxSizing: 'border-box' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                             <h3 style={{ margin: 0, fontSize: '15px', color: '#2A1A1D' }}>📅 تحديد موعد الاختبار</h3>
                             <button type="button" onClick={() => setShowCalendarModal(false)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#6B5357' }}>✕</button>
@@ -697,7 +697,7 @@ export default function Navbar({ isLoggedIn, mobileAction, variant = 'top' }: Na
             {/* مودال التنبيهات العامة */}
             {showAlertModal && (
                 <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 3000, fontFamily: 'sans-serif', padding: '16px', boxSizing: 'border-box' }}>
-                    <div style={{ backgroundColor: '#ffffff', border: '1px solid #6B5357', padding: '24px', borderRadius: '16px', width: '100%', maxWidth: '320px', boxShadow: '0 15px 30px rgba(0,0,0,0.15)', color: '#2A1A1D', textAlign: 'center', boxSizing: 'border-box' }}>
+                    <div style={{ backgroundColor: '#ffffff', border: '1px solid #ecdcdd', padding: '24px', borderRadius: '16px', width: '100%', maxWidth: '320px', boxShadow: '0 15px 30px rgba(0,0,0,0.15)', color: '#2A1A1D', textAlign: 'center', boxSizing: 'border-box' }}>
                         <p style={{ margin: '0 0 20px 0', fontSize: '0.95rem', fontWeight: 'bold', lineHeight: '1.5' }}>{alertMessage}</p>
                         <button
                             type="button"
@@ -926,7 +926,7 @@ export default function Navbar({ isLoggedIn, mobileAction, variant = 'top' }: Na
                                         padding: '0 var(--btn-padding-x)',
                                         borderRadius: '8px',
                                         backgroundColor: examDate ? (isUrgent ? '#fee2e2' : '#ffffff') : '#ffffff',
-                                        border: '1px solid #6B5357',
+                                        border: '1px solid #ecdcdd',
                                         cursor: 'pointer',
                                         display: 'flex',
                                         alignItems: 'center',
@@ -949,7 +949,7 @@ export default function Navbar({ isLoggedIn, mobileAction, variant = 'top' }: Na
                                         padding: '0 var(--btn-padding-x)',
                                         backgroundColor: hasUpcomingExam ? (isUrgent ? '#fee2e2' : '#ffffff') : '#ffffff',
                                         color: hasUpcomingExam ? (isUrgent ? '#991b1b' : '#2A1A1D') : '#2A1A1D',
-                                        border: '1px solid #6B5357',
+                                        border: '1px solid #ecdcdd',
                                         borderRadius: '8px',
                                         fontWeight: 'bold',
                                         fontSize: 'var(--btn-font-size)',

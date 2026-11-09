@@ -5,6 +5,7 @@ import WordsTrainer from '@/components/WordsTrainer'
 
 export const metadata: Metadata = {
     title: 'تعلم كلمات | EsprEngl',
+    alternates: { canonical: '/words' },
     description: 'اختر مستواك (A1 لين C1) و3 كلمات ما تعرفها كل يوم: تتعلمها، تحطها في جملتها، توصلها بمعناها، وتكتبها. مع مراجعة ذكية للي تعلمته.',
 }
 

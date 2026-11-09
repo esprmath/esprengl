@@ -21,7 +21,12 @@ export function generateStaticParams(): Params[] {
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
     const { topic, course } = await params
     const found = findLesson(topic, course)
-    return { title: found ? `${found.topic.title} · ${found.lesson.course} | EsprEngl` : 'EsprEngl' }
+    if (!found) return { title: 'EsprEngl' }
+    const { topic: t, lesson: l } = found
+    const title = `${t.title} · ${l.course} | EsprEngl`
+    const description = `شرح ${t.titleAr} (${t.title}) في مادة ${l.course} على EsprEngl، بنفس طريقة المادة مع أمثلة ملونة وتمارين.`
+    const url = lessonPath(t, l)
+    return { title, description, alternates: { canonical: url }, openGraph: { title, description, url } }
 }
 
 function BlockView({ block }: { block: Block }) {
