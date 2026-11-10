@@ -7,7 +7,7 @@ import { circleLabel, circleStyle, pillStyle } from '@/components/pillStyle'
 const PRIMARY = '#7a1f2b'
 
 /**
- * زر الذكاء: يفتح "خطة التحسين" (/plan). يطلع للكل، وللي حسابه مو معتمد في EsprMath
+ * زر الذكاء: يفتح "ضايع بالانقلش؟ ابني خطتك" (/plan). يطلع للكل، وللي حسابه مو معتمد في EsprMath
  * عليه علامة × والصفحة توضح له إن الميزة للمعتمدين.
  *
  * variant: circle دائرة في نص النافبار الجانبي برا الدروس (تحت تعلم كلمات)، sidebar زر صغير تحت في البار داخل الدروس، floating زر عائم على الجوال، bar دائرة داخل شريط أقسام الدرس على الجوال.
@@ -16,7 +16,7 @@ const PRIMARY = '#7a1f2b'
 export default function EnglAssistant({ variant }: { variant: 'sidebar' | 'floating' | 'bar' | 'circle'; course?: string; topic?: string; lesson?: string }) {
     const access = useAiAccess()
     const locked = access !== 'allowed'
-    const label = locked ? 'خطة التحسين بالذكاء (للمعتمدين)' : 'خطة التحسين بالذكاء'
+    const label = locked ? 'ابني خطتك بالذكاء (للمعتمدين)' : 'ابني خطتك بالذكاء'
 
     if (variant === 'circle') {
         return (

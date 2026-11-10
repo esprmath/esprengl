@@ -5,12 +5,17 @@
 // الأفعال الشاذة (went, bought...) اكتبها كلمة لحالها لأن تصريفها ما يمشي على القاعدة.
 // note اختيارية: توضيح قصير يطلع تحت الترجمة.
 
+import { ENG001_GLOSSARY, ENG001_NAMES } from './glossary-eng001';
+
 export interface GlossaryEntry {
     ar: string;
     note?: string;
 }
 
 const G: Record<string, GlossaryEntry> = {
+    // كلمات دروس التحضيري أول، عشان لو الكلمة موجودة تحت تبقى ترجمتها الأصلية
+    ...ENG001_GLOSSARY,
+
     // ───── مصطلحات المادة ─────
     sentence: { ar: 'جملة' },
     fragment: { ar: 'جملة ناقصة', note: 'ناقصها فاعل أو فعل أو فكرة كاملة' },
@@ -443,6 +448,7 @@ const G: Record<string, GlossaryEntry> = {
 const NAMES = new Set([
     'salem', 'saudi', 'arabia', 'jamal', 'yanbu', 'jeddah', 'riyadh', 'ibrahim', 'hana', 'lg', 'osama', 'ahmad', 'bandar', 'sarah', 'saleh',
     'khaled', 'rakan', 'faisal', 'omar', 'malik', 'tala', 'skippy', 'lazybones', 'rocky', 'salma', 'ali', 'covid', 'iphone',
+    ...ENG001_NAMES,
 ])
 
 /** يحاول يرجع الكلمة لأصلها: studies → study، played → play، playing → play */

@@ -97,7 +97,7 @@ export default function PlanBuilder() {
         return (
             <div style={card}>
                 <div style={{ fontSize: '2.4rem' }}>🔒</div>
-                <h2 style={{ margin: '6px 0 8px', fontSize: '1.3rem' }}>خطة التحسين متاحة للحسابات المعتمدة</h2>
+                <h2 style={{ margin: '6px 0 8px', fontSize: '1.3rem' }}>بناء خطتك متاح للحسابات المعتمدة</h2>
                 <p style={muted}>
                     تجاوب كم سؤال سريع عن مستواك وهدفك ووش يضايقك في الإنجليزي، والذكاء يبني لك خطة بمراحل واضحة مبنية على أبحاث تعلم اللغات، وتقدر تحفظها صورة أو PDF.
                     الميزة متاحة للي حسابه معتمد في{' '}
@@ -315,7 +315,7 @@ function PlanView({ plan, onRestart }: { plan: Plan; onRestart: () => void }) {
 
             <div ref={ref} className="plan-print" style={{ background: '#FBF6F6', padding: '18px', borderRadius: '18px', direction: 'rtl', color: '#2A1A1D' }}>
                 <div style={{ background: 'linear-gradient(120deg, #2A1A1D 0%, #5A1520 55%, #7a1f2b 100%)', color: '#ffffff', borderRadius: '16px', padding: '20px' }}>
-                    <div style={{ fontSize: '0.8rem', color: '#E4A3AB', fontWeight: 'bold' }}>خطة التحسين · EsprEngl</div>
+                    <div style={{ fontSize: '0.8rem', color: '#E4A3AB', fontWeight: 'bold' }}>خطتك في الإنجليزي · EsprEngl</div>
                     <h2 style={{ margin: '4px 0 8px', fontSize: '1.45rem' }}>{plan.title}</h2>
                     <p style={{ margin: 0, lineHeight: 1.8, color: '#F3DADD', fontSize: '0.95rem' }}>{plan.summary}</p>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '12px' }}>

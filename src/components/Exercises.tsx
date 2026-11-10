@@ -103,7 +103,7 @@ export default function Exercises({ exercises }: { exercises: Exercise[] }) {
             {/* كل التمارين تبقى موجودة عشان ما تضيع اختيارات الطالب لما يبدل */}
             {exercises.map((ex, i) => (
                 <div key={i} style={{ display: i === active ? 'block' : 'none' }}>
-                    {ex.choices ? (
+                    {ex.choices || ex.items.some((it) => it.choices) ? (
                         <ChoiceExercise title={ex.title} instructions={ex.instructions} choices={ex.choices} items={ex.items} />
                     ) : (
                         <RevealExercise ex={ex} />

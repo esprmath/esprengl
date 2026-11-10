@@ -4,7 +4,7 @@ import SiteNavbar from '@/components/SiteNavbar'
 import PlanBuilder from '@/components/PlanBuilder'
 
 export const metadata: Metadata = {
-    title: 'خطة التحسين | EsprEngl',
+    title: 'ضايع بالانقلش؟ ابني خطتك | EsprEngl',
     alternates: { canonical: '/plan' },
     description: 'الذكاء يسألك عن مستواك ووش يضايقك في الإنجليزي، ويبني لك خطة تحسين بمراحل واضحة وروتين يومي.',
 }
@@ -20,7 +20,7 @@ export default function PlanPage() {
                     <Link href="/" style={{ color: '#7a1f2b', fontWeight: 'bold', fontSize: '0.9rem', textDecoration: 'none' }}>
                         → الرئيسية
                     </Link>
-                    <h1 style={{ fontSize: '1.7rem', margin: '16px 0 4px' }}>خطة التحسين 🎯</h1>
+                    <h1 style={{ fontSize: '1.7rem', margin: '16px 0 4px' }}>ضايع بالانقلش؟ ابني خطتك 🎯</h1>
                     <p style={{ color: '#6B5357', margin: '0 0 18px', lineHeight: 1.8 }}>خطة شخصية في الإنجليزي، يبنيها لك الذكاء على مستواك ووقتك.</p>
                 </div>
                 <PlanBuilder />

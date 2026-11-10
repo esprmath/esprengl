@@ -12,6 +12,8 @@ const KINDS: Record<PartKind, { label: string; color: string; bg: string }> = {
     sub: { label: 'Subordinator', color: '#7a1f2b', bg: '#F7E1E4' },
     p: { label: '', color: '#B45309', bg: '#FDEBC8' },
     x: { label: 'Missing', color: '#B42318', bg: '#FDE4E1' },
+    n: { label: 'Noun', color: '#6B3FA0', bg: '#EEE6F7' },
+    adj: { label: 'Adjective', color: '#9D174D', bg: '#FCE7F3' },
 }
 
 const PUNCT_NAMES: Record<string, string> = { ',': 'comma', ';': 'semicolon', '.': 'full stop', '?': 'question mark', '!': 'exclamation' }

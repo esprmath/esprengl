@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import GlobalSideNav from '@/components/GlobalSideNav'
+import EnglMarker from '@/components/EnglMarker'
 import BackgroundLetters from '@/components/BackgroundLetters'
 import { SITE_ALT_NAMES, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from '@/lib/site'
 import './globals.css'
@@ -73,6 +74,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {/* النافبار الجانبي الثابت على اليسار للشاشات الكبيرة */}
                 <BackgroundLetters />
                 <GlobalSideNav />
+                <EnglMarker />
                 {children}
                 <SpeedInsights />
             </body>

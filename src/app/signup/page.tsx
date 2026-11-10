@@ -42,7 +42,7 @@ export default function SignupPage() {
             email: cleanEmail,
             password,
             options: {
-                data: { full_name: fullName.trim() },
+                data: { full_name: fullName.trim(), engl: true },
                 emailRedirectTo: `${window.location.origin}/`,
             },
         })

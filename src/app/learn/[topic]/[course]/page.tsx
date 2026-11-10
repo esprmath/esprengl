@@ -8,6 +8,7 @@ import LessonVideos from '@/components/LessonVideos'
 import WarmupQuestion from '@/components/WarmupQuestion'
 import ShareLesson from '@/components/ShareLesson'
 import WritingCheck from '@/components/WritingCheck'
+import ChoiceExercise from '@/components/ChoiceExercise'
 import { TOPICS, courseSlug, findLesson, lessonPath, relatedLessons, blockViews, type Block } from '@/content/lessons'
 
 const PRIMARY = '#7a1f2b'
@@ -27,6 +28,27 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     const description = `شرح ${t.titleAr} (${t.title}) في مادة ${l.course} على EsprEngl، بنفس طريقة المادة مع أمثلة ملونة وتمارين.`
     const url = lessonPath(t, l)
     return { title, description, alternates: { canonical: url }, openGraph: { title, description, url } }
+}
+
+/** خريطة صغيرة بمربعات: أماكن، وشوارع بلون رمادي، وفراغات. نفس الشكل على الجوال */
+function LessonMap({ rows, caption }: { rows: string[][]; caption?: string }) {
+    const cols = Math.max(...rows.map((r) => r.length))
+    return (
+        <figure style={{ margin: 0 }}>
+            <div dir="ltr" style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gap: '6px', background: '#ffffff', border: '1px solid #ecdcdd', borderRadius: '12px', padding: '10px' }}>
+                {rows.flatMap((row, i) =>
+                    row[0]?.startsWith('~')
+                        ? [<div key={i} style={{ gridColumn: `1 / span ${cols}`, background: '#E7E2E3', borderRadius: '6px', padding: '6px', textAlign: 'center', color: '#6B5357', fontSize: '0.8rem', fontWeight: 'bold', letterSpacing: '0.05em' }}>{row[0].slice(1)}</div>]
+                        : row.map((cell, j) => (
+                              <div key={`${i}-${j}`} style={{ minHeight: '58px', borderRadius: '8px', background: cell ? '#F7E6E8' : 'transparent', border: cell ? '1px solid #E4A3AB' : '1px dashed #ecdcdd', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '4px', fontSize: '0.82rem', fontWeight: 'bold', color: '#5A1520', lineHeight: 1.3 }}>
+                                  {cell}
+                              </div>
+                          )),
+                )}
+            </div>
+            {caption && <figcaption style={{ fontSize: '0.88rem', color: '#6B5357', marginTop: '6px' }}>{caption}</figcaption>}
+        </figure>
+    )
 }
 
 function BlockView({ block }: { block: Block }) {
@@ -54,6 +76,10 @@ function BlockView({ block }: { block: Block }) {
             )
         case 'try':
             return <WritingCheck task={block.task} reference={block.reference} placeholder={block.placeholder} />
+        case 'check':
+            return <ChoiceExercise badge="سؤال سريع" title="تأكد إنك فهمت" instructions="جاوب واضغط تحقق، وبعدها كمّل." choices={block.choices} items={block.items} />
+        case 'map':
+            return <LessonMap rows={block.rows} caption={block.caption} />
         case 'formula':
             return <Formula parts={block.parts} />
         case 'breakdown':

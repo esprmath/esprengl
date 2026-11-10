@@ -6,10 +6,12 @@ import type { Session } from '@supabase/supabase-js'
 import Navbar from '@/components/Navbar'
 import EsprMathAd from '@/components/EsprMathAd'
 import SearchBox from '@/components/SearchBox'
+import TopicCard from '@/components/TopicCard'
+import AdminHomePanel from '@/components/AdminHomePanel'
 import { supabase } from '@/lib/supabase'
 import { checkIsAdmin } from '@/lib/admin'
 import { logSearchMiss } from '@/lib/searchLog'
-import { TOPICS, searchTopics, lessonPath } from '@/content/lessons'
+import { TOPICS, searchTopics } from '@/content/lessons'
 import { SESSIONS, SECTIONS, SESSION_MINUTES, SESSIONS_ENABLED, nextSession } from '@/content/sessions'
 import { fetchCompletedPlans } from '@/lib/planProgress'
 
@@ -30,7 +32,7 @@ export default function HomePage() {
     const [tab, setTab] = useState<'search' | 'plans'>('search')
     const [completed, setCompleted] = useState<Set<string>>(new Set())
 
-    // الموقع مفتوح للكل، الدخول لإظهار الاسم وزر لوحة التحكم وحفظ الخطط المنتهية
+    // الموقع مفتوح للكل، الدخول لإظهار الاسم وقوائم المشرف وحفظ الخطط المنتهية
     useEffect(() => {
         // الرجوع من صفحة خطة يفتح تبويب الخطط
         if (SESSIONS_ENABLED && new URLSearchParams(window.location.search).get('tab') === 'plans') setTab('plans')
@@ -67,13 +69,6 @@ export default function HomePage() {
             </div>
 
             <header style={{ textAlign: 'center', margin: '28px 0 0', padding: '10px 20px 15px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                {isAdmin && (
-                    <div style={{ marginBottom: '10px' }}>
-                        <Link href="/admin" style={{ display: 'inline-block', background: '#ffffff', color: PRIMARY, border: '1px solid #ecdcdd', padding: '6px 14px', borderRadius: '999px', fontWeight: 'bold', fontSize: '0.85rem', textDecoration: 'none' }}>
-                            ⚙️ لوحة التحكم
-                        </Link>
-                    </div>
-                )}
                 {isLoggedIn && (
                     <h2 style={{ fontSize: '1.2rem', color: PRIMARY, fontWeight: 'bold', marginBottom: '6px' }}>
                         مرحباً {userName || 'طالبنا العزيز'} 👋
@@ -87,10 +82,10 @@ export default function HomePage() {
                         ? 'ابحث عن أي درس، ويطلع لك شرحه بالضبط زي ما هو في كتاب مادتك'
                         : 'جلسة وحدة تمرّ فيها على كل شي: كلمات، قاعدة، قراءة، استماع، نطق، وكتابة'}
                 </p>
-                {/* اختصارات: تعلم كلمات للكل، وخطة التحسين بالذكاء */}
+                {/* اختصارات: تعلم كلمات للكل، و"ضايع بالانقلش؟ ابني خطتك" بالذكاء */}
                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '16px' }}>
                     <Link href="/words" style={shortcut}>📚 تعلم كلمات <span style={{ fontWeight: 'normal', color: '#9b8a8d' }}>· 5 دقايق</span></Link>
-                    <Link href="/plan" style={shortcut}>🎯 خطة التحسين <span style={{ fontWeight: 'normal', color: '#9b8a8d' }}>· بالذكاء</span></Link>
+                    <Link href="/plan" style={shortcut}>🎯 ضايع بالانقلش؟ ابني خطتك <span style={{ fontWeight: 'normal', color: '#9b8a8d' }}>· بالذكاء</span></Link>
                 </div>
                 {SESSIONS_ENABLED && <div role="tablist" style={{ display: 'flex', gap: '6px', background: '#F7E6E8', padding: '5px', borderRadius: '12px', marginTop: '18px' }}>
                     {([['search', '🔍 دروس المواد'], ['plans', '🚀 جلسات التحسين']] as const).map(([key, label]) => (
@@ -185,34 +180,14 @@ export default function HomePage() {
                 )}
 
                 {q && <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {results.map((topic) => (
-                        <div key={topic.slug} style={{ background: '#ffffff', border: '1px solid #ecdcdd', borderRadius: '14px', padding: '16px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '10px', gap: '10px' }}>
-                                <h3 dir="ltr" style={{ margin: 0, fontSize: '1.15rem', color: '#2A1A1D' }}>{topic.title}</h3>
-                                <span style={{ fontSize: '0.9rem', color: '#6B5357' }}>{topic.titleAr}</span>
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                {topic.lessons.map((lesson) => (
-                                    <Link
-                                        key={lesson.course}
-                                        href={lessonPath(topic, lesson)}
-                                        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', background: '#F7E6E8', borderRadius: '10px', padding: '10px 12px', textDecoration: 'none' }}
-                                    >
-                                        <span dir="ltr" style={{ color: '#5A1520', fontSize: '0.92rem' }}>
-                                            {lesson.unit ? `${lesson.unit} · ` : ''}{lesson.title}
-                                        </span>
-                                        <span style={{ flexShrink: 0, background: PRIMARY, color: '#ffffff', fontSize: '0.78rem', fontWeight: 'bold', padding: '3px 9px', borderRadius: '6px' }}>
-                                            {lesson.course}
-                                        </span>
-                                    </Link>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
+                    {results.map((topic) => <TopicCard key={topic.slug} topic={topic} />)}
                 </div>}
                 </div>
             </section>
             )}
+
+            {/* للمشرف بس: كل الدروس، وطلاب الإنجليزي، وعمليات البحث */}
+            {isAdmin && <AdminHomePanel />}
 
             <EsprMathAd />
 

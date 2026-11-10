@@ -1,6 +1,6 @@
 'use client';
 
-// تبويب "عمليات البحث" في لوحة التحكم: وش بحث عنه الطلاب وما لقوا له درس.
+// للمشرف في الصفحة الرئيسية: وش بحث عنه الطلاب وما لقوا له درس.
 
 import { useCallback, useEffect, useState } from 'react';
 import { deleteSearchMiss, fetchSearchMisses, type SearchMissRow } from '@/lib/searchLog';

@@ -11,10 +11,30 @@ const COLORS = [
     { color: '#0F6B5C', bg: '#DDF1EB' },
 ]
 
-type Item = { q: string; a: string; why?: string }
+type Item = { q: string; a: string; why?: string; choices?: string[] }
 
-/** تمرين اختيار: الطالب يختار لكل سؤال، وفي الأخير يضغط تحقق */
-export default function ChoiceExercise({ title, instructions, choices, items }: { title: string; instructions: string; choices: string[]; items: Item[] }) {
+/** الكلمة بين ** ** تطلع عريضة وتحتها خط، مثل الكلمة المحددة في أسئلة الاختبار */
+function Marked({ text }: { text: string }) {
+    return (
+        <>
+            {text.split('**').map((piece, i) =>
+                i % 2 ? (
+                    <strong key={i} style={{ textDecoration: 'underline', textUnderlineOffset: '3px', color: '#2A1A1D' }}>
+                        {piece}
+                    </strong>
+                ) : (
+                    piece
+                ),
+            )}
+        </>
+    )
+}
+
+/**
+ * تمرين اختيار: الطالب يختار لكل سؤال، وفي الأخير يضغط تحقق.
+ * الخيارات المشتركة تطلع جنب السؤال، والسؤال اللي له خيارات خاصة تطلع خياراته تحته
+ */
+export default function ChoiceExercise({ title, instructions, choices = [], items, badge = 'تمرين' }: { title: string; instructions: string; choices?: string[]; items: Item[]; badge?: string }) {
     const [picked, setPicked] = useState<(string | null)[]>(() => items.map(() => null))
     const [checked, setChecked] = useState(false)
 
@@ -33,7 +53,7 @@ export default function ChoiceExercise({ title, instructions, choices, items }: 
     return (
         <section style={{ background: '#ffffff', border: `1px solid ${PRIMARY}33`, borderRadius: '12px', padding: '16px', marginTop: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                <span style={{ background: PRIMARY, color: '#ffffff', fontSize: '0.75rem', fontWeight: 'bold', padding: '2px 8px', borderRadius: '6px' }}>تمرين</span>
+                <span style={{ background: PRIMARY, color: '#ffffff', fontSize: '0.75rem', fontWeight: 'bold', padding: '2px 8px', borderRadius: '6px' }}>{badge}</span>
                 <h3 dir="ltr" style={{ margin: 0, fontSize: '1.05rem' }}>{title}</h3>
             </div>
             <p style={{ margin: '0 0 14px', color: '#6B5357', fontSize: '0.92rem' }}>{instructions}</p>
@@ -44,10 +64,12 @@ export default function ChoiceExercise({ title, instructions, choices, items }: 
                     const right = mine === item.a
                     const rowBg = !checked ? '#ffffff' : right ? '#ECF8F1' : '#FDEEEC'
                     const rowBorder = !checked ? '#ecdcdd' : right ? '#9AD3B2' : '#F2B8B0'
+                    const own = !!item.choices
+                    const options = item.choices ?? choices
                     return (
-                        <li key={i} style={{ display: 'flex', flexDirection: 'row-reverse', gap: '12px', alignItems: 'flex-start', background: rowBg, border: `1px solid ${rowBorder}`, borderRadius: '10px', padding: '10px 12px' }}>
-                            <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
-                                {choices.map((c, ci) => {
+                        <li key={i} style={{ display: 'flex', flexDirection: own ? 'column-reverse' : 'row-reverse', gap: own ? '8px' : '12px', alignItems: own ? 'stretch' : 'flex-start', background: rowBg, border: `1px solid ${rowBorder}`, borderRadius: '10px', padding: '10px 12px' }}>
+                            <div style={{ display: 'flex', gap: '6px', flexShrink: 0, flexWrap: own ? 'wrap' : 'nowrap' }}>
+                                {options.map((c, ci) => {
                                     const col = COLORS[ci % COLORS.length]
                                     const isMine = mine === c
                                     const isAnswer = checked && c === item.a
@@ -79,7 +101,7 @@ export default function ChoiceExercise({ title, instructions, choices, items }: 
                             </div>
                             <div style={{ flex: 1, lineHeight: 1.6, paddingTop: '3px' }}>
                                 <span style={{ color: '#9b8a8d', marginRight: '6px' }}>{i + 1}.</span>
-                                {item.q}
+                                <Marked text={item.q} />
                                 {checked && (
                                     <div dir="rtl" style={{ fontSize: '0.86rem', marginTop: '4px', textAlign: 'right', color: right ? '#1E7A4A' : '#B42318' }}>
                                         {right ? '✓ صح' : mine ? `✗ الجواب الصحيح ${item.a}` : `لم تجاوب، الجواب ${item.a}`}
