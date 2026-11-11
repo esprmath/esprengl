@@ -5,6 +5,7 @@ import Link from 'next/link'
 import type { Session } from '@supabase/supabase-js'
 import Navbar from '@/components/Navbar'
 import EsprMathAd from '@/components/EsprMathAd'
+import { SHOW_ESPRMATH } from '@/lib/features'
 import SearchBox from '@/components/SearchBox'
 import TopicCard from '@/components/TopicCard'
 import AdminHomePanel from '@/components/AdminHomePanel'
@@ -189,7 +190,8 @@ export default function HomePage() {
             {/* للمشرف بس: كل الدروس، وطلاب الإنجليزي، وعمليات البحث */}
             {isAdmin && <AdminHomePanel />}
 
-            <EsprMathAd />
+            {/* إعلان EsprMath مخفي مؤقتًا: يرجع لما SHOW_ESPRMATH = true في src/lib/features.ts */}
+            {SHOW_ESPRMATH && <EsprMathAd />}
 
             {/* شريط التواصل في آخر الصفحة، خط متقطع بعرض الصفحة */}
             <div style={{ marginTop: 'auto', height: '2px', backgroundImage: `repeating-linear-gradient(to left, ${PRIMARY} 0 18px, transparent 18px 30px)` }} />

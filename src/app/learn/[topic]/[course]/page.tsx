@@ -2,14 +2,11 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import LessonShell from '@/components/LessonShell'
-import { Breakdown, Formula } from '@/components/SentenceParts'
-import Exercises from '@/components/Exercises'
 import LessonVideos from '@/components/LessonVideos'
-import WarmupQuestion from '@/components/WarmupQuestion'
 import ShareLesson from '@/components/ShareLesson'
-import WritingCheck from '@/components/WritingCheck'
-import ChoiceExercise from '@/components/ChoiceExercise'
-import { TOPICS, courseSlug, findLesson, lessonPath, relatedLessons, blockViews, type Block } from '@/content/lessons'
+import LessonBlock, { NamedExercises, NamedWarmup } from '@/components/LessonBlock'
+import { NameProvider } from '@/components/NameChoice'
+import { TOPICS, courseSlug, findLesson, lessonPath, relatedLessons, blockViews } from '@/content/lessons'
 
 const PRIMARY = '#7a1f2b'
 
@@ -28,120 +25,6 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     const description = `شرح ${t.titleAr} (${t.title}) في مادة ${l.course} على EsprEngl، بنفس طريقة المادة مع أمثلة ملونة وتمارين.`
     const url = lessonPath(t, l)
     return { title, description, alternates: { canonical: url }, openGraph: { title, description, url } }
-}
-
-/** خريطة صغيرة بمربعات: أماكن، وشوارع بلون رمادي، وفراغات. نفس الشكل على الجوال */
-function LessonMap({ rows, caption }: { rows: string[][]; caption?: string }) {
-    const cols = Math.max(...rows.map((r) => r.length))
-    return (
-        <figure style={{ margin: 0 }}>
-            <div dir="ltr" style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gap: '6px', background: '#ffffff', border: '1px solid #ecdcdd', borderRadius: '12px', padding: '10px' }}>
-                {rows.flatMap((row, i) =>
-                    row[0]?.startsWith('~')
-                        ? [<div key={i} style={{ gridColumn: `1 / span ${cols}`, background: '#E7E2E3', borderRadius: '6px', padding: '6px', textAlign: 'center', color: '#6B5357', fontSize: '0.8rem', fontWeight: 'bold', letterSpacing: '0.05em' }}>{row[0].slice(1)}</div>]
-                        : row.map((cell, j) => (
-                              <div key={`${i}-${j}`} style={{ minHeight: '58px', borderRadius: '8px', background: cell ? '#F7E6E8' : 'transparent', border: cell ? '1px solid #E4A3AB' : '1px dashed #ecdcdd', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '4px', fontSize: '0.82rem', fontWeight: 'bold', color: '#5A1520', lineHeight: 1.3 }}>
-                                  {cell}
-                              </div>
-                          )),
-                )}
-            </div>
-            {caption && <figcaption style={{ fontSize: '0.88rem', color: '#6B5357', marginTop: '6px' }}>{caption}</figcaption>}
-        </figure>
-    )
-}
-
-function BlockView({ block }: { block: Block }) {
-    switch (block.type) {
-        case 'text':
-            return <p style={{ fontSize: '1.05rem', lineHeight: 1.9, margin: 0 }}>{block.text}</p>
-        case 'rule':
-            return (
-                <div dir="ltr" style={{ background: '#F7E6E8', borderInlineStart: `4px solid ${PRIMARY}`, padding: '12px 16px', fontWeight: 'bold', color: '#5A1520', fontSize: '1.02rem' }}>
-                    {block.text}
-                </div>
-            )
-        case 'example':
-            return (
-                <div style={{ background: '#ffffff', border: '1px solid #ecdcdd', borderRadius: '10px', padding: '10px 14px' }}>
-                    <div dir="ltr" style={{ fontSize: '1.05rem', color: '#2A1A1D', whiteSpace: 'pre-line', lineHeight: 1.7 }}>{block.en}</div>
-                    {block.ar && <div style={{ fontSize: '0.92rem', color: '#6B5357', marginTop: '4px' }}>{block.ar}</div>}
-                </div>
-            )
-        case 'note':
-            return (
-                <div style={{ background: '#FEF3C7', border: '1px solid #f6d8b5', borderRadius: '10px', padding: '10px 14px', color: '#7a4a1d', fontSize: '0.95rem' }}>
-                    ⚠️ {block.text}
-                </div>
-            )
-        case 'try':
-            return <WritingCheck task={block.task} reference={block.reference} placeholder={block.placeholder} />
-        case 'check':
-            return <ChoiceExercise badge="سؤال سريع" title="تأكد إنك فهمت" instructions="جاوب واضغط تحقق، وبعدها كمّل." choices={block.choices} items={block.items} />
-        case 'map':
-            return <LessonMap rows={block.rows} caption={block.caption} />
-        case 'formula':
-            return <Formula parts={block.parts} />
-        case 'breakdown':
-            return <Breakdown parts={block.parts} ar={block.ar} />
-        case 'heading':
-            return <h2 style={{ fontSize: '1.3rem', color: PRIMARY, margin: '18px 0 0', paddingBottom: '6px', borderBottom: '2px solid #ecdcdd' }}>{block.text}</h2>
-        case 'list': {
-            const isEn = block.lang !== 'ar'
-            const Tag = block.ordered ? 'ol' : 'ul'
-            return (
-                <Tag dir={isEn ? 'ltr' : 'rtl'} style={{ margin: 0, paddingInlineStart: '26px', fontSize: '1.03rem', lineHeight: 1.9, background: '#ffffff', border: '1px solid #ecdcdd', borderRadius: '10px', padding: '12px 14px 12px 34px' }}>
-                    {block.items.map((item, i) => <li key={i}>{item}</li>)}
-                </Tag>
-            )
-        }
-        case 'table': {
-            // على الجوال: بطاقات تحت بعض بدل جدول يحتاج سكرول للجنب
-            const cards =
-                block.stackBy === 'column'
-                    ? block.head.map((h, c) => ({ title: h, lines: block.rows.map((row) => ({ label: '', text: row[c] })) }))
-                    : block.rows.map((row) => ({ title: row[0], lines: row.slice(1).map((text, c) => ({ label: block.head[c + 1], text })) }))
-            return (
-                <>
-                    <div className="desk-only" dir="ltr" style={{ overflowX: 'auto', border: '1px solid #ecdcdd', borderRadius: '10px' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.95rem', background: '#ffffff' }}>
-                            <thead>
-                                <tr>
-                                    {block.head.map((h, i) => (
-                                        <th key={i} style={{ background: PRIMARY, color: '#ffffff', padding: '10px 12px', textAlign: 'left', whiteSpace: 'nowrap' }}>{h}</th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {block.rows.map((row, r) => (
-                                    <tr key={r}>
-                                        {row.map((cell, c) => (
-                                            <td key={c} style={{ padding: '10px 12px', borderTop: '1px solid #ecdcdd', verticalAlign: 'top', lineHeight: 1.7, minWidth: '140px' }}>{cell}</td>
-                                        ))}
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div className="mobile-only" dir="ltr" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        {cards.map((card, i) => (
-                            <div key={i} style={{ border: '1px solid #ecdcdd', borderRadius: '10px', overflow: 'hidden', background: '#ffffff' }}>
-                                <div style={{ background: PRIMARY, color: '#ffffff', padding: '9px 12px', fontWeight: 'bold' }}>{card.title}</div>
-                                {card.lines.map((line, j) => (
-                                    <div key={j} style={{ padding: '9px 12px', borderTop: j ? '1px solid #ecdcdd' : 'none', lineHeight: 1.7, fontSize: '0.95rem' }}>
-                                        {line.label && <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#9b6b72', textTransform: 'uppercase' }}>{line.label}</div>}
-                                        {line.text}
-                                    </div>
-                                ))}
-                            </div>
-                        ))}
-                    </div>
-                </>
-            )
-        }
-        case 'exercise':
-            return null // تنعرض كلها في قسم التمارين آخر الدرس
-    }
 }
 
 export default async function LessonPage({ params }: { params: Promise<Params> }) {
@@ -216,7 +99,8 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
 
     return (
         <LessonShell header={header} footer={footer} ai={{ course: lesson.course, topic: topic.title, lesson: lesson.title }}>
-            {lesson.warmup && <WarmupQuestion warmup={lesson.warmup} lessonKey={`${topic.slug}/${courseSlug(lesson.course)}`} />}
+            <NameProvider>
+            {lesson.warmup && <NamedWarmup warmup={lesson.warmup} lessonKey={`${topic.slug}/${courseSlug(lesson.course)}`} />}
             {lesson.videos?.length ? (
                 <div className="v-explain">
                     <LessonVideos videos={lesson.videos} />
@@ -226,14 +110,15 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
                 {lesson.blocks.map((block, i) =>
                     block.type === 'exercise' ? null : (
                         <div key={i} className={viewClass(i)}>
-                            <BlockView block={block} />
+                            <LessonBlock block={block} />
                         </div>
                     ),
                 )}
             </div>
             <div className="v-practice">
-                <Exercises exercises={lesson.blocks.filter((b) => b.type === 'exercise')} />
+                <NamedExercises exercises={lesson.blocks.filter((b) => b.type === 'exercise')} />
             </div>
+            </NameProvider>
         </LessonShell>
     )
 }

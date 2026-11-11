@@ -5,6 +5,7 @@ import { useRef, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAiAccess } from '@/lib/useAiAccess'
 import { ESPRMATH_URL } from '@/lib/links'
+import { AI_COMING_SOON, AI_ENABLED, SHOW_ESPRMATH } from '@/lib/features'
 
 const PRIMARY = '#7a1f2b'
 
@@ -13,7 +14,7 @@ type Result = { ok: boolean; corrected: string; issues: Issue[]; tip: string }
 
 /**
  * "اكتب وبصححها لك" بالذكاء: الطالب يكتب، والذكاء يصحح على قواعد المادة ويربط كل خطأ بدرسه.
- * مقفل للي حسابه مو معتمد في EsprMath.
+ * مقفل للي حسابه مو معتمد. وإذا AI_ENABLED = false (src/lib/features.ts) يطلع المطلوب و"قريبًا" بس، بدون خانة.
  *
  * variant:
  * - inline: داخل الدرس بعد الأمثلة. سطر واحد يكبر لما يكتب.
@@ -41,9 +42,47 @@ export default function WritingCheck({
     const [result, setResult] = useState<Result | null>(null)
     const [error, setError] = useState<string | null>(null)
     const boxRef = useRef<HTMLTextAreaElement>(null)
+    const [showRef, setShowRef] = useState(false)
     const isPage = variant === 'page'
 
-    if (variant === 'exercise' && locked) return null
+    // تحت أسئلة التمرين ما يطلع شي (التمرين يوضح مرة وحدة فوق)
+    if (variant === 'exercise' && (locked || !AI_ENABLED)) return null
+
+    if (!AI_ENABLED) {
+        return (
+            <section data-no-translate style={{ background: '#ffffff', border: '1.5px dashed #E4D3D6', borderRadius: '12px', padding: isPage ? '16px' : '10px 12px' }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexWrap: 'wrap', fontSize: isPage ? '1rem' : '0.88rem' }}>
+                    <span>✍️</span>
+                    <strong style={{ color: PRIMARY }}>{title ?? 'جرب بنفسك:'}</strong>
+                    {task && <span style={{ color: '#2A1A1D' }}>{task}</span>}
+                </div>
+                {/* الطالب يكتب حتى لو الذكاء موقف، ويقارن بالجواب النموذجي إذا موجود */}
+                <textarea
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    dir="ltr"
+                    rows={isPage ? 6 : 2}
+                    maxLength={1500}
+                    placeholder={placeholder ?? 'Write your sentence here...'}
+                    aria-label={task ?? 'اكتب هنا'}
+                    style={{ marginTop: '8px', width: '100%', boxSizing: 'border-box', resize: 'vertical', border: `1px solid ${text ? '#E4A3AB' : '#ecdcdd'}`, borderRadius: '10px', padding: '8px 12px', fontSize: '0.98rem', fontFamily: 'inherit', lineHeight: 1.5, background: '#ffffff', outline: 'none' }}
+                />
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
+                    <span style={{ fontSize: '0.8rem', color: '#6B5357' }}>🤖 التصحيح بالذكاء {AI_COMING_SOON}</span>
+                    {reference && (
+                        <button type="button" onClick={() => setShowRef((v) => !v)} style={{ background: 'none', border: `1px solid ${PRIMARY}`, color: PRIMARY, borderRadius: '999px', padding: '4px 12px', fontSize: '0.85rem', fontWeight: 'bold', cursor: 'pointer' }}>
+                            {showRef ? 'أخف الجواب' : 'شوف جواب نموذجي'}
+                        </button>
+                    )}
+                </div>
+                {reference && showRef && (
+                    <div dir="ltr" style={{ marginTop: '8px', background: '#EAF6EE', border: '1px solid #b9dfc6', borderRadius: '10px', padding: '8px 12px', color: '#1F5132', fontSize: '0.95rem' }}>
+                        {reference}
+                    </div>
+                )}
+            </section>
+        )
+    }
 
     const check = async () => {
         if (locked || loading || text.trim().length < 3) return
@@ -96,7 +135,7 @@ export default function WritingCheck({
                 dir="ltr"
                 rows={isPage ? 6 : 1}
                 maxLength={1500}
-                placeholder={locked ? 'متاح للحسابات المعتمدة في EsprMath' : placeholder ?? 'Write your sentence here...'}
+                placeholder={locked ? (SHOW_ESPRMATH ? 'متاح للحسابات المعتمدة في EsprMath' : 'متاح للحسابات المعتمدة') : placeholder ?? 'Write your sentence here...'}
                 style={{ flex: 1, minWidth: 0, boxSizing: 'border-box', resize: 'none', overflow: 'auto', border: `1px solid ${text ? '#E4A3AB' : '#ecdcdd'}`, borderRadius: '10px', padding: '8px 12px', fontSize: '0.98rem', fontFamily: 'inherit', lineHeight: 1.5, background: locked ? '#FBF6F6' : '#ffffff', outline: 'none', transition: 'border-color 0.15s' }}
             />
             {!locked && (
@@ -113,10 +152,15 @@ export default function WritingCheck({
 
     const lockNote = locked && access !== 'loading' && (
         <div style={{ marginTop: '6px', fontSize: '0.8rem', color: '#6B5357', lineHeight: 1.7 }}>
-            🔒 التصحيح بالذكاء للحسابات المعتمدة في{' '}
-            <a href={ESPRMATH_URL} target="_blank" rel="noopener noreferrer" dir="ltr" style={{ color: PRIMARY, fontWeight: 'bold' }}>
-                EsprMath
-            </a>
+            🔒 التصحيح بالذكاء للحسابات المعتمدة
+            {SHOW_ESPRMATH && (
+                <>
+                    {' '}في{' '}
+                    <a href={ESPRMATH_URL} target="_blank" rel="noopener noreferrer" dir="ltr" style={{ color: PRIMARY, fontWeight: 'bold' }}>
+                        EsprMath
+                    </a>
+                </>
+            )}
             {access === 'guest' && (
                 <>
                     {' · '}

@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAiAccess } from '@/lib/useAiAccess'
-import { ESPRMATH_URL } from '@/lib/links'
 import { NODES, START, TOTAL_STAGES, VOCAB_CHECK, VOCAB_NODE, questionOptions, questionText, vocabEstimate, type Answers, type PlanNode } from '@/content/planQuestions'
 import type { Plan } from '@/app/api/engl-ai/route'
 
@@ -14,7 +13,7 @@ const SAVE_KEY = 'engl-plan-v3'
 const BUILD_STEPS = ['نقرأ أجوبتك…', 'نحدد مستواك ووش تحتاج…', 'نختار أنسب طريقة لك من البحث…', 'نرتّب المراحل والروتين اليومي…']
 
 /**
- * خطة التحسين بالذكاء (للحسابات المعتمدة في EsprMath):
+ * خطة التحسين بالذكاء (لأي حساب مسجل، بدون اعتماد):
  * أسئلة شجرة، كل سؤال يعتمد على جواب اللي قبله (src/content/planQuestions.ts)،
  * واللي ما يعرف مستواه يطلع له اختبار كلمات سريع. وفي الآخر الذكاء ياخذ الأجوبة ويبني الخطة بطلب واحد.
  * الخطة تنحفظ في المتصفح، ويقدر ياخذها صورة أو PDF.
@@ -92,22 +91,19 @@ export default function PlanBuilder() {
 
     if (access === 'loading') return <p style={{ color: '#9b8a8d' }}>لحظة…</p>
 
-    // ───── مقفل ─────
-    if (access !== 'allowed') {
+    // ───── زائر: يحتاج يسجل دخول بس، بدون اعتماد ─────
+    if (access === 'guest') {
         return (
             <div style={card}>
                 <div style={{ fontSize: '2.4rem' }}>🔒</div>
-                <h2 style={{ margin: '6px 0 8px', fontSize: '1.3rem' }}>بناء خطتك متاح للحسابات المعتمدة</h2>
+                <h2 style={{ margin: '6px 0 8px', fontSize: '1.3rem' }}>سجّل دخولك وابني خطتك</h2>
                 <p style={muted}>
                     تجاوب كم سؤال سريع عن مستواك وهدفك ووش يضايقك في الإنجليزي، والذكاء يبني لك خطة بمراحل واضحة مبنية على أبحاث تعلم اللغات، وتقدر تحفظها صورة أو PDF.
-                    الميزة متاحة للي حسابه معتمد في{' '}
-                    <a href={ESPRMATH_URL} target="_blank" rel="noopener noreferrer" dir="ltr" style={{ color: PRIMARY, fontWeight: 'bold' }}>EsprMath</a>.
                 </p>
-                {access === 'guest' && (
-                    <p style={{ ...muted, marginTop: '10px' }}>
-                        الحساب نفسه يشتغل في الموقعين. إذا حسابك معتمد هناك <Link href="/login" style={{ color: PRIMARY, fontWeight: 'bold' }}>سجّل دخول</Link> هنا.
-                    </p>
-                )}
+                <p style={{ ...muted, marginTop: '10px' }}>
+                    <Link href="/login" style={{ color: PRIMARY, fontWeight: 'bold' }}>سجّل دخول</Link> أو{' '}
+                    <Link href="/signup" style={{ color: PRIMARY, fontWeight: 'bold' }}>سوّ حساب</Link>، وتقدر تبدأ على طول.
+                </p>
             </div>
         )
     }

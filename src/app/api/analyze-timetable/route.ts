@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import { getRequestUser } from '@/lib/serverAuth'
+import { AI_COMING_SOON, AI_ENABLED } from '@/lib/features'
 
 // الحدود لكل طالب في الساعة، وحجم الصورة بعد تحويلها إلى نص
 const MAX_PARSES_PER_HOUR = 10
@@ -109,6 +110,8 @@ function extractPeriodCodes(value: unknown): string[] {
 */
 
 export async function POST(req: Request) {
+    // الذكاء موقف حاليًا (src/lib/features.ts)
+    if (!AI_ENABLED) return NextResponse.json({ success: false, error: AI_COMING_SOON }, { status: 503 })
     try {
         const auth = await getRequestUser(req)
         if (!auth) {

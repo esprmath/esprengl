@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAiAccess } from '@/lib/useAiAccess'
 import { ESPRMATH_URL } from '@/lib/links'
+import { AI_COMING_SOON, AI_ENABLED, SHOW_ESPRMATH } from '@/lib/features'
 import { pillStyle } from '@/components/pillStyle'
 
 const PRIMARY = '#7a1f2b'
@@ -14,13 +15,14 @@ type Msg = { role: 'user' | 'assistant'; content: string }
 /**
  * الذكاء داخل الدروس: محادثة عادية يسأل فيها الطالب عن الدرس اللي فاتحه.
  * (برا الدروس زر الذكاء يفتح "خطتي" بدالها.)
- * يطلع للكل، وللي حسابه مو معتمد في EsprMath عليه علامة × ويطلع له إن الميزة للمعتمدين.
+ * يطلع للكل، وللي حسابه مو معتمد عليه علامة × ويطلع له إن الميزة للمعتمدين.
+ * إذا AI_ENABLED = false (src/lib/features.ts): الزر يطلع، والنافذة تقول "قريبًا" بس.
  *
  * variant: sidebar زر أبيض تحت في النافبار الجانبي، bar دائرة في شريط أقسام الدرس على الجوال.
  */
 export default function LessonChat({ variant, course, topic, lesson }: { variant: 'sidebar' | 'bar'; course?: string; topic?: string; lesson?: string }) {
     const access = useAiAccess()
-    const locked = access !== 'allowed'
+    const locked = !AI_ENABLED || access !== 'allowed'
     const [open, setOpen] = useState(false)
     const [messages, setMessages] = useState<Msg[]>([])
     const [input, setInput] = useState('')
@@ -54,8 +56,8 @@ export default function LessonChat({ variant, course, topic, lesson }: { variant
         }
     }
 
-    const label = locked ? 'اسأل الذكاء (للمعتمدين)' : 'اسأل الذكاء عن الدرس'
-    const badge = locked && access !== 'loading' && <LockBadge />
+    const label = !AI_ENABLED ? `اسأل الذكاء (${AI_COMING_SOON})` : locked ? 'اسأل الذكاء (للمعتمدين)' : 'اسأل الذكاء عن الدرس'
+    const badge = AI_ENABLED && locked && access !== 'loading' && <LockBadge />
 
     const trigger =
         variant === 'sidebar' ? (
@@ -101,21 +103,31 @@ export default function LessonChat({ variant, course, topic, lesson }: { variant
 
                     {locked ? (
                         <div style={{ padding: '18px 16px', fontSize: '0.95rem', lineHeight: 1.8 }}>
-                            {access === 'loading' ? (
+                            {!AI_ENABLED ? (
+                                <p style={{ margin: 0 }}>
+                                    <strong style={{ color: PRIMARY }}>{AI_COMING_SOON}</strong> · المساعد اللي يجاوبك عن الدرس بيرجع قريب.
+                                </p>
+                            ) : access === 'loading' ? (
                                 <span style={{ color: '#9b8a8d' }}>لحظة…</span>
                             ) : (
                                 <>
                                     <p style={{ margin: '0 0 10px' }}>
-                                        الذكاء متاح بس للي حسابه معتمد في{' '}
-                                        <a href={ESPRMATH_URL} target="_blank" rel="noopener noreferrer" dir="ltr" style={{ color: PRIMARY, fontWeight: 'bold' }}>EsprMath</a>.
+                                        الذكاء متاح بس للي حسابه معتمد
+                                        {SHOW_ESPRMATH && (
+                                            <>
+                                                {' '}في{' '}
+                                                <a href={ESPRMATH_URL} target="_blank" rel="noopener noreferrer" dir="ltr" style={{ color: PRIMARY, fontWeight: 'bold' }}>EsprMath</a>
+                                            </>
+                                        )}
+                                        .
                                     </p>
                                     <p style={{ margin: 0, color: '#6B5357', fontSize: '0.88rem' }}>
                                         {access === 'guest' ? (
                                             <>
-                                                الحساب نفسه يشتغل في الموقعين. إذا حسابك معتمد هناك <Link href="/login" style={{ color: PRIMARY, fontWeight: 'bold' }}>سجّل دخول</Link> هنا.
+                                                {SHOW_ESPRMATH ? 'الحساب نفسه يشتغل في الموقعين. إذا حسابك معتمد هناك ' : 'إذا حسابك معتمد '}<Link href="/login" style={{ color: PRIMARY, fontWeight: 'bold' }}>سجّل دخول</Link> هنا.
                                             </>
                                         ) : (
-                                            'حسابك مسجل بس للحين مو معتمد في EsprMath. أول ما يتعتمد هناك يتفعّل لك هنا تلقائيًا.'
+                                            SHOW_ESPRMATH ? 'حسابك مسجل بس للحين مو معتمد في EsprMath. أول ما يتعتمد هناك يتفعّل لك هنا تلقائيًا.' : 'حسابك مسجل بس للحين مو معتمد.'
                                         )}
                                     </p>
                                 </>

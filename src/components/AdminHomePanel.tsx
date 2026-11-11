@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import TopicCard from '@/components/TopicCard'
 import { SearchMisses } from '@/components/SearchMisses'
 import { supabase } from '@/lib/supabase'
+import { SHOW_ESPRMATH } from '@/lib/features'
 import { TOPICS, type Topic } from '@/content/lessons'
 
 const PRIMARY = '#7a1f2b'
@@ -57,7 +58,7 @@ function EnglStudents() {
                 <thead>
                     <tr style={{ color: '#6B5357' }}>
                         <th style={cell}>الطالب</th>
-                        <th style={cell}>كورس ماث</th>
+                        {SHOW_ESPRMATH && <th style={cell}>كورس ماث</th>}
                     </tr>
                 </thead>
                 <tbody>
@@ -67,11 +68,13 @@ function EnglStudents() {
                                 <div style={{ fontWeight: 'bold' }}>{r.full_name || 'بدون اسم'}</div>
                                 <div dir="ltr" style={{ color: '#9b8a8d', fontSize: '0.82rem', textAlign: 'right' }}>{r.email}</div>
                             </td>
-                            <td style={cell}>
-                                {r.math_courses?.length
-                                    ? <span style={{ color: '#1E7A4A', fontWeight: 'bold' }}>✓ Math {r.math_courses.join('، ')}</span>
-                                    : <span style={{ color: '#9b8a8d' }}>لا</span>}
-                            </td>
+                            {SHOW_ESPRMATH && (
+                                <td style={cell}>
+                                    {r.math_courses?.length
+                                        ? <span style={{ color: '#1E7A4A', fontWeight: 'bold' }}>✓ Math {r.math_courses.join('، ')}</span>
+                                        : <span style={{ color: '#9b8a8d' }}>لا</span>}
+                                </td>
+                            )}
                         </tr>
                     ))}
                 </tbody>

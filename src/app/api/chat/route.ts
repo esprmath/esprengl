@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import { buildSystemPrompt, cleanMessages, clip } from '@/lib/tutorPrompt'
 import { getRequestUser } from '@/lib/serverAuth'
+import { AI_COMING_SOON, AI_ENABLED } from '@/lib/features'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,6 +19,8 @@ const DEFAULT_COURSE = '101'
 const reply = (text: string, status: number) => NextResponse.json({ reply: text }, { status })
 
 export async function POST(req: Request) {
+    // فيكتور موقف حاليًا (src/lib/features.ts)
+    if (!AI_ENABLED) return reply(AI_COMING_SOON, 503)
     try {
         const apiKey = process.env.OPENAI_API_KEY
         if (!apiKey) {

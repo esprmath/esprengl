@@ -38,6 +38,9 @@
 في الموقع، **تبويب الشرح** يعرض النصوص والعناوين والجداول والمعادلات بس. الأمثلة الملونة (breakdown) والأمثلة (example) تطلع في **تبويب الأمثلة** إلا إذا حطينا لها `view: 'both'`.
 لذلك: أي درس يحتاج الطالب يشوف فيه مثال عشان يفهم الشرح، نحط أهم مثال أو مثالين بـ `view: 'both'`.
 
+## قائمة الفحص
+قبل ما نقول الدرس جاهز، نمر على `docs/lesson-checklist.md`: مشاكل لقيناها في المراجعة وكيف نتجنبها، والمشاكل اللي تنتظر الحل.
+
 ## المصادر
 - [Mayer’s 12 Principles of Multimedia Learning (Dartmouth)](https://services.dartmouth.edu/TDClient/1806/Portal/KB/PrintArticle?ID=171655)
 - [Multimedia Learning Principles (Ohio State)](https://u.osu.edu/multimedialearning/?p=11)

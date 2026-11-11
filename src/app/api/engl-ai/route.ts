@@ -2,16 +2,18 @@ import { NextResponse, after } from 'next/server'
 import OpenAI from 'openai'
 import { getRequestUser } from '@/lib/serverAuth'
 import { hasAiAccess } from '@/lib/aiAccess'
+import { AI_COMING_SOON, AI_ENABLED } from '@/lib/features'
 import { CHECK_PROMPT, PLAN_PROMPT, SYSTEM_PROMPT, lessonContext, lessonsList } from '@/lib/englAiPrompt'
 import { TOPICS, lessonPath } from '@/content/lessons'
 import { cleanMessages, clip } from '@/lib/tutorPrompt'
 
-// مساعد EsprEngl. يرد بس على الحسابات المعتمدة في EsprMath (نفس قاعدة البيانات).
+// مساعد EsprEngl. بناء الخطة (mode: 'plan') لأي حساب مسجل.
+// المحادثة والتصحيح: موقفة إذا AI_ENABLED = false، ولما تشتغل تكون للحسابات المعتمدة بس (hasAiAccess).
 
 export const dynamic = 'force-dynamic'
 
 const MODEL = 'gpt-4o-mini'
-// اسم مختلف في ai_logs عشان تكلفة EsprEngl وحدها تنفصل عن EsprMath، وحد الرسائل ما يتشارك بينهم
+// اسم مختلف في ai_logs عشان تكلفة EsprEngl وحدها تنفصل عن الموقع الثاني، وحد الرسائل ما يتشارك بينهم
 const LOG_NAME = 'engl:gpt-4o-mini'
 const INPUT_COST = 0.00000015
 const OUTPUT_COST = 0.0000006
@@ -87,19 +89,24 @@ export async function POST(req: Request) {
         if (!auth) return reply('سجّل دخولك أولًا.', 401)
         const { supabase, user } = auth
 
+        const body = await req.json().catch(() => ({}))
+        const isPlan = body?.mode === 'plan'
+        // كل شي غير الخطة موقف حاليًا، والطلب ما يوصل للذكاء أبدًا
+        if (!isPlan && !AI_ENABLED) return reply(AI_COMING_SOON, 503)
+
         // نسوي الفحوصات مع بعض (بالتوازي) عشان الرد يكون أسرع
         const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
-        const [allowed, { count }, body] = await Promise.all([
-            hasAiAccess(supabase, user.id),
+        const [allowed, { count }] = await Promise.all([
+            // الخطة لأي حساب مسجل بدون اعتماد، والباقي للمعتمدين
+            isPlan ? true : hasAiAccess(supabase, user.id),
             supabase
                 .from('ai_logs')
                 .select('id', { count: 'exact', head: true })
                 .eq('user_id', user.id)
                 .eq('model_name', LOG_NAME)
                 .gte('created_at', oneHourAgo),
-            req.json(),
         ])
-        if (!allowed) return reply('المساعد متاح للحسابات المعتمدة في EsprMath بس.', 403)
+        if (!allowed) return reply('المساعد متاح للحسابات المعتمدة بس.', 403)
         if ((count ?? 0) >= MAX_MESSAGES_PER_HOUR) return reply('وصلت للحد المسموح هذي الساعة، جرّب بعد شوي.', 429)
 
         const openai = new OpenAI({ apiKey })

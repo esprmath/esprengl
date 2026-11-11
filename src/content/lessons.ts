@@ -40,7 +40,15 @@ type BlockBody =
     // سؤال سريع وسط الشرح: يجاوبه الطالب وهو يقرأ ويشوف الصح مباشرة. نفس شكل أسئلة التمرين
     | { type: 'check'; choices?: string[]; items: { q: string; a: string; why?: string; choices?: string[] }[] }
     // خريطة صغيرة: صفوف مربعات. المربع الفاضي '' فراغ، واللي يبدأ بـ ~ شارع (اسمه بعد ~). تبقى نفس الشكل على الجوال
-    | { type: 'map'; rows: string[][]; caption?: string };
+    | { type: 'map'; rows: string[][]; caption?: string }
+    // شجرة عائلة بخطوط تتفرع: كل شخص (أو زوجين) وتحته عياله. me يميز صاحب الشجرة
+    | { type: 'tree'; root: TreeNode; caption?: string }
+    // اختيار اسم الشخصية فوق الأمثلة (Fahad أو Laura أو اسم يكتبه الطالب). النصوص فيها رموز مثل {name} و {He}، شوف src/lib/names.ts
+    | { type: 'names' };
+
+/** شخص في الشجرة، ومعه زوجه إن وجد، وعيالهم تحته */
+export interface TreePerson { name: string; role: string; job?: string; emoji?: string; me?: boolean }
+export interface TreeNode { person: TreePerson; spouse?: TreePerson; children?: TreeNode[] }
 
 /**
  * نوع الجزء في الجملة، ويحدد لونه واسمه اللي يطلع فوقه:
@@ -395,6 +403,7 @@ export const TOPICS: Topic[] = [
         keywords: ['noun', 'nouns', 'verb', 'verbs', 'اسم', 'اسماء', 'أسماء', 'فعل', 'افعال', 'أفعال', 'part of speech', 'parts of speech', 'singular', 'plural', 'مفرد', 'جمع', 'irregular plurals', 'تحضيري', 'ENG 001', 'Unit 1', 'People'],
         lessons: [
             {
+                // الجو: "الكلمة تعرفها من جارها". كل جملة فيها الجار بالأحمر يدل على نوع الكلمة. والخيط: عائلة فهد ومزرعة جده في العلا.
                 course: 'ENG 001',
                 unit: 'Unit 1 · People',
                 title: 'Nouns and verbs',
@@ -403,105 +412,88 @@ export const TOPICS: Topic[] = [
                     sentence: 'I love my work.',
                     choices: ['اسم (Noun)', 'فعل (Verb)'],
                     answer: 0,
-                    why: 'جات بعد my، والكلمة اللي بعد my أو the أو a تكون اسم. ونفس الكلمة في I work in Yanbu فعل. تحت بتعرف كيف تفرق بينهم من مكان الكلمة.',
+                    why: 'قبلها my، واللي بعد my يكون اسم. ونفس الكلمة في I work in Yanbu فعل. تحت بتعرف السر: الكلمة تعرفها من جارها.',
                 },
                 blocks: [
-                    { type: 'text', text: 'كل كلمة في الإنجليزي لها نوع (part of speech). نبدأ بأهم نوعين: الاسم (noun) والفعل (verb). والاختبار يسأل عنهم مباشرة، مثل: What is the verb in this sentence? أو The part of speech of the underlined word is…' },
+                    { type: 'names' },
+                    { type: 'text', text: 'كل كلمة في الإنجليزي لها نوع، وأهم نوعين الاسم (noun) والفعل (verb). والسر في هالدرس: لا تحكم على الكلمة لحالها، شوف جارها اللي قبلها. الجار بالأحمر في كل الأمثلة.' },
 
-                    { type: 'heading', text: 'الاسم (Noun)' },
-                    { type: 'rule', text: 'Noun = a person, a thing, or a place' },
-                    { type: 'table', head: ['People', 'Things', 'Places'], rows: [['teacher', 'car', 'Yanbu'], ['brother', 'phone', 'university'], ['Sultan', 'book', 'farm']], stackBy: 'column' },
-                    { type: 'text', text: 'وفيه أسماء ما تنلمس، ومع كذا هي أسماء: music و weather و autumn و climate و English و family. الاختبار يحب يجيبها في سؤال Which of the following is NOT a noun?' },
+                    { type: 'heading', text: 'الاسم (noun): شخص أو شي أو مكان' },
+                    { type: 'text', text: 'وفيه أسماء ما تنلمس، ومع كذا هي أسماء: weather و music و English و family.' },
+                    { type: 'breakdown', view: 'explain', parts: [['My', 'x', 'Clue →'], ['grandfather', 'n', 'Noun: person'], ['has'], ['a', 'x', 'Clue →'], ['farm', 'n', 'Noun: place'], ['in AlUla', 'n', 'Noun: place'], ['.', 'p']], ar: 'my و a جيران يدلون إن اللي بعدهم اسم.' },
+                    { type: 'check', items: [{ q: 'My grandfather has a farm. Which word comes after a?', choices: ['has', 'My', 'farm'], a: 'farm', why: 'بعد a يجي اسم، و farm مكان.' }] },
 
-                    { type: 'heading', text: 'الفعل (Verb)' },
-                    { type: 'rule', text: 'Verb = an action or a state' },
-                    { type: 'table', head: ['Actions (حركة)', 'States (حالة)'], rows: [['work', 'is / am / are'], ['play', 'like'], ['speak', 'have'], ['study', 'love']], stackBy: 'column' },
-                    { type: 'note', text: 'is و am و are أفعال! كثير يحسبونها مو أفعال. في The weather is cold. الفعل هو is.' },
+                    { type: 'heading', text: 'الفعل (verb): وش يسوي أو وش هو' },
+                    { type: 'text', text: 'الفعل حركة (work، grow، play) أو حالة (is، have، like). وانتبه: is و am و are أفعال.' },
+                    { type: 'breakdown', view: 'explain', parts: [['He', 'x', 'Clue →'], ['grows', 'v', 'Verb: action'], ['dates', 'n'], ['and'], ['he', 'x', 'Clue →'], ['is', 'v', 'Verb: state'], ['very busy'], ['.', 'p']], ar: 'بعد الفاعل (He) يجي فعل.' },
+                    { type: 'check', items: [{ q: 'The weather is cold. What is the verb?', choices: ['weather', 'cold', 'is'], a: 'is', why: 'is فعل حالة، و weather اسم، و cold صفة.' }] },
 
-                    { type: 'heading', text: 'كيف تعرفه داخل الجملة؟' },
-                    { type: 'text', text: 'لا تحكم على الكلمة لحالها، شوف وش قبلها:' },
-                    { type: 'formula', parts: [['a / an / the / my / his / two …'], ['Noun', 'n']] },
-                    { type: 'formula', parts: [['I / you / he / she / we / they'], ['Verb', 'v']] },
+                    { type: 'heading', text: 'القاعدة: مين جار الكلمة؟' },
+                    { type: 'formula', view: 'explain', parts: [['a / an / the / my / his / two', 'x', 'Clue'], ['Noun', 'n']] },
+                    { type: 'formula', view: 'explain', parts: [['I / he / they / {name}', 'x', 'Clue'], ['Verb', 'v']] },
                     {
                         type: 'list',
                         lang: 'ar',
-                        items: [
-                            'قبلها a أو an أو the ← اسم: a farmer، the book',
-                            'قبلها my أو his أو her أو our أو their ← اسم: my work، his son',
-                            'قبلها رقم ← اسم: two brothers، three languages',
-                            'جات بعد الفاعل I / you / he / she / we / they ← فعل: He lives، They play',
-                        ],
+                        items: ['قبلها a أو an أو the ← اسم: a farm، the weather', 'قبلها my أو his أو her ← اسم: my work، his sister', 'قبلها رقم ← اسم: two cows، three languages', 'قبلها الفاعل (I، he، they، أو اسم شخص) ← فعل: He grows، {name} studies'],
                     },
 
-                    { type: 'heading', text: 'فخ الاختبار: نفس الكلمة اسم وفعل' },
-                    {
-                        type: 'table',
-                        head: ['Word', 'Verb', 'Noun'],
-                        rows: [
-                            ['work', 'I work in a company.', 'I love my work.'],
-                            ['call', 'I call my friends every day.', 'The phone call was short.'],
-                            ['answer', 'I answer the questions.', 'The answer is easy.'],
-                            ['plan', 'We plan our trip.', 'My plan is simple.'],
-                            ['watch', 'I watch TV at night.', 'My watch is new.'],
-                        ],
-                    },
-                    { type: 'note', text: 'احكم على الكلمة من مكانها مو من معناها: بعد a / the / my تكون اسم، وبعد الفاعل تكون فعل.' },
+                    { type: 'heading', text: 'نفس الكلمة اسم وفعل' },
+                    { type: 'text', text: 'كلمات مثل work و call و plan و answer تجي اسم مرة وفعل مرة. جارها هو اللي يحكم.' },
+                    { type: 'breakdown', view: 'explain', parts: [['I', 'x', 'Clue →'], ['work', 'v', 'Verb'], ['on the farm.'], ['I love'], ['my', 'x', 'Clue →'], ['work', 'n', 'Noun'], ['.', 'p']] },
+                    { type: 'check', items: [{ q: 'The phone call was short. The word call is a:', choices: ['Verb', 'Noun', 'Adjective'], a: 'Noun', why: 'قبلها phone وقبلها The، فهي اسم.' }] },
 
-                    { type: 'heading', text: 'المفرد والجمع (Singular and plural)' },
-                    { type: 'rule', text: 'Singular = 1  |  Plural = 2+' },
-                    { type: 'text', text: 'أغلب الأسماء نجمعها بإضافة s:' },
-                    { type: 'table', head: ['Singular', 'Plural'], rows: [['one job', 'two jobs'], ['one brother', 'three brothers'], ['one language', 'two languages']] },
-                    { type: 'text', text: 'وفيه 4 جموع شاذة ما ياخذون s، لازم تحفظهم:' },
-                    { type: 'table', head: ['Singular', 'Plural'], rows: [['man', 'men'], ['woman', 'women'], ['person', 'people'], ['child', 'children']] },
-                    { type: 'note', text: 'إملاء الجمع: الكلمة اللي تنتهي بـ ch أو sh أو s أو x تاخذ es (watch → watches، class → classes). واللي تنتهي بحرف ساكن + y تتغير y إلى ies (family → families، city → cities).' },
-                    { type: 'note', text: 'إذا الكلمة لا اسم ولا فعل، مثل cloudy أو nice أو cold، فهي غالبًا صفة (adjective). الصفات لها درس في الوحدة 2، بس الاختبار يحطها خيار ثالث من الحين.' },
+                    { type: 'heading', text: 'المفرد والجمع: نعد في مزرعة الجد' },
+                    { type: 'text', text: 'المفرد (singular) واحد، والجمع (plural) اثنين وفوق. أغلب الأسماء نجمعها بـ s.' },
+                    { type: 'breakdown', view: 'explain', parts: [['one'], ['cow', 'n', 'Singular'], ['→'], ['two'], ['cow', 'n'], ['s', 'x', '+ s']] },
+                    { type: 'text', text: 'إملاء: اللي تنتهي بـ ch أو sh أو s أو x تاخذ es، واللي تنتهي بحرف ساكن + y تصير ies.' },
+                    { type: 'breakdown', view: 'explain', parts: [['one'], ['box', 'n'], ['→'], ['three'], ['box', 'n'], ['es', 'x', 'x → es'], ['|'], ['one'], ['famil', 'n'], ['y', 'x'], ['→'], ['two'], ['famil', 'n'], ['ies', 'x', 'y → ies']] },
+                    { type: 'text', text: 'وأربع كلمات شاذة ما تاخذ s، تنحفظ: man ← men، woman ← women، person ← people، child ← children.' },
+                    { type: 'breakdown', view: 'explain', parts: [['one'], ['man', 'n'], ['→'], ['two'], ['men', 'x', 'Irregular']] },
+                    { type: 'check', items: [{ q: 'Three ___ work on the farm.', choices: ['mans', 'man', 'men'], a: 'men', why: 'man جمعه شاذ: men.' }] },
+                    { type: 'note', text: 'الكلمة اللي لا اسم ولا فعل، مثل cold أو nice، غالبًا صفة (adjective). والاختبار يحطها خيار عشان يلخبطك.' },
 
-                    // ── الأمثلة ──
-                    { type: 'heading', text: 'أمثلة: الاسم والفعل داخل الجملة' },
-                    { type: 'text', view: 'examples', text: 'في كل مثال: الاسم بالبنفسجي، والفعل بالأخضر.' },
-                    { type: 'breakdown', parts: [['Sultan', 'n'], ['is', 'v'], ['a'], ['farmer', 'n'], ['.', 'p']], ar: 'is فعل حالة، و Sultan و farmer أسماء لأنها أشخاص.' },
-                    { type: 'breakdown', parts: [['My'], ['brother', 'n'], ['studies', 'v'], ['at the'], ['university', 'n'], ['in'], ['Yanbu', 'n'], ['.', 'p']], ar: 'brother شخص، و university و Yanbu أماكن.' },
-                    { type: 'breakdown', parts: [['The'], ['weather', 'n'], ['is', 'v'], ['cold', 'adj'], ['in'], ['winter', 'n'], ['.', 'p']], ar: 'weather و winter أسماء حتى لو ما تنلمس، و cold صفة.' },
-                    { type: 'breakdown', parts: [['I'], ['love', 'v'], ['my'], ['work', 'n'], ['.', 'p']], ar: 'work بعد my، فهي اسم.' },
-                    { type: 'breakdown', parts: [['I'], ['work', 'v'], ['in a'], ['hospital', 'n'], ['.', 'p']], ar: 'هنا work بعد الفاعل I، فهي فعل.' },
-                    { type: 'breakdown', parts: [['My'], ['uncle', 'n'], ['has', 'v'], ['two'], ['children', 'n'], ['.', 'p']], ar: 'children جمع child، جمع شاذ بدون s.' },
-                    { type: 'try', task: 'اكتب جملة عن واحد من عايلتك: وش يشتغل، أو وين يعيش، أو وش يحب. وتأكد إن فيها فعل واسمين على الأقل.', placeholder: 'My uncle works in a bank.' },
-                    { type: 'try', task: 'اكتب جملة فيها كلمة work مرتين: مرة فعل ومرة اسم.', reference: 'I work in Yanbu, and I love my work.', placeholder: 'I work ...' },
+                    // ── الأمثلة: جمل جديدة عن عائلة فهد ──
+                    { type: 'heading', text: 'عائلة {nameAr}: نطبق القاعدة' },
+                    { type: 'text', view: 'examples', text: 'الجار بالأحمر، والاسم بالبنفسجي، والفعل بالأخضر.' },
+                    { type: 'breakdown', parts: [['{name}', 'x', 'Clue →'], ['studies', 'v'], ['English'], ['at'], ['the', 'x', 'Clue →'], ['institute', 'n'], ['.', 'p']], ar: 'بعد اسم الشخص (الفاعل) فعل، وبعد the اسم.' },
+                    { type: 'breakdown', parts: [['{His}', 'x', 'Clue →'], ['mother', 'n'], ['teaches', 'v'], ['at'], ['a', 'x', 'Clue →'], ['school', 'n'], ['.', 'p']] },
+                    { type: 'breakdown', parts: [['The', 'x', 'Clue →'], ['weather', 'n'], ['in AlUla'], ['is', 'v'], ['cold'], ['in winter'], ['.', 'p']], ar: 'weather اسم حتى لو ما تنلمس، و cold صفة.' },
+                    { type: 'breakdown', parts: [['They', 'x', 'Clue →'], ['answer', 'v', 'Verb'], ['the questions.'], ['The', 'x', 'Clue →'], ['answer', 'n', 'Noun'], ['is easy'], ['.', 'p']], ar: 'answer مرة فعل ومرة اسم.' },
+                    { type: 'breakdown', parts: [['Grandfather Saleh'], ['has', 'v'], ['two', 'x', 'Clue →'], ['camels', 'n', 'Plural'], ['and'], ['three', 'x', 'Clue →'], ['sheep', 'n', 'Plural'], ['.', 'p']], ar: 'sheep جمعها نفسها، مثل fish.' },
+                    { type: 'breakdown', parts: [['My uncle'], ['has', 'v'], ['two', 'x', 'Clue →'], ['children', 'n', 'Irregular plural'], ['.', 'p']] },
+                    { type: 'try', task: 'اكتب جملة عن واحد من عائلتك فيها فعل واسمين على الأقل.', reference: 'My father works in a bank in Yanbu.', placeholder: 'My father works …' },
+                    { type: 'try', task: 'اكتب جملة فيها كلمة plan مرتين: مرة فعل ومرة اسم.', reference: 'We plan our trip together. Our plan is to visit AlUla.', placeholder: 'We plan …' },
 
                     // ── التمارين ──
                     {
                         type: 'exercise',
-                        title: 'Exercise A: Noun or verb?',
-                        instructions: 'الكلمة اللي تحتها خط اسم ولا فعل؟ اختر N للاسم و V للفعل، وبعدين اضغط تحقق.',
-                        choices: ['N', 'V'],
+                        title: 'Exercise A: Noun, verb or adjective?',
+                        instructions: 'الكلمة اللي تحتها خط وش نوعها؟ شوف جارها.',
+                        choices: ['Noun', 'Verb', 'Adjective'],
                         items: [
-                            { q: 'Chloe is from **California**.', a: 'N', why: 'مكان.' },
-                            { q: 'Sultan **lives** on a farm.', a: 'V', why: 'جات بعد الفاعل Sultan.' },
-                            { q: 'Her father is an **engineer**.', a: 'N', why: 'جات بعد an.' },
-                            { q: 'He **is** interested in music.', a: 'V', why: 'is فعل حالة.' },
-                            { q: 'I **work** in an international company.', a: 'V', why: 'جات بعد الفاعل I.' },
-                            { q: 'I always love the **work** of that writer.', a: 'N', why: 'جات بعد the.' },
-                            { q: 'My **plan** is to study in Canada.', a: 'N', why: 'جات بعد my.' },
-                            { q: 'I **call** my friends every day.', a: 'V', why: 'جات بعد الفاعل I.' },
-                            { q: 'The phone **call** was short.', a: 'N', why: 'المقصود المكالمة نفسها، وقبلها the phone.' },
-                            { q: 'She **speaks** three languages.', a: 'V', why: 'جات بعد الفاعل She.' },
-                            { q: 'He speaks three **languages**.', a: 'N', why: 'جات بعد رقم.' },
-                            { q: 'The **answer** to my question was easy.', a: 'N', why: 'جات بعد the.' },
+                            { q: 'Saad **studies** Engineering in Jeddah.', a: 'Verb', why: 'بعد الفاعل Saad.' },
+                            { q: 'Her **brother** is a pilot.', a: 'Noun', why: 'بعد Her.' },
+                            { q: 'The farm is very **quiet**.', a: 'Adjective', why: 'توصف الاسم farm، لا شخص ولا حركة.' },
+                            { q: 'They **plan** a trip every summer.', a: 'Verb', why: 'بعد الفاعل They.' },
+                            { q: 'My **plan** is to study Medicine.', a: 'Noun', why: 'بعد My.' },
+                            { q: 'Abha has a **cool** summer.', a: 'Adjective', why: 'توصف summer.' },
+                            { q: 'I **am** a new student.', a: 'Verb', why: 'am فعل حالة.' },
+                            { q: 'The **music** in the café is loud.', a: 'Noun', why: 'بعد The، وحتى لو ما تنلمس.' },
+                            { q: 'We **call** our grandmother on Fridays.', a: 'Verb', why: 'بعد الفاعل We.' },
+                            { q: 'He is a **kind** doctor.', a: 'Adjective', why: 'بين a و doctor، توصف doctor.' },
                         ],
                     },
                     {
                         type: 'exercise',
                         title: 'Exercise B: Exam style',
-                        instructions: 'نفس شكل أسئلة الكويز: اختر الجواب الصحيح لكل سؤال، وبعدين اضغط تحقق.',
+                        instructions: 'نفس شكل أسئلة الكويز.',
                         items: [
-                            { q: 'In the sentence "The student studies Maths." what is the verb?', choices: ['The', 'student', 'studies', 'Maths'], a: 'studies' },
-                            { q: 'In the sentence "The weather is cold." what is the noun?', choices: ['The', 'weather', 'is', 'cold'], a: 'weather', why: 'is فعل و cold صفة.' },
-                            { q: 'In the sentence "My sister likes coffee." what is the verb?', choices: ['My', 'sister', 'likes', 'coffee'], a: 'likes' },
-                            { q: 'In the sentence "Ali is a doctor." what is the verb?', choices: ['Ali', 'is', 'a', 'doctor'], a: 'is', why: 'is فعل حالة.' },
-                            { q: 'In the sentence "We watch TV at night." what is the noun?', choices: ['We', 'watch', 'TV', 'at'], a: 'TV', why: 'watch هنا فعل لأنها بعد الفاعل We.' },
-                            { q: 'My **watch** is new. The part of speech of the underlined word is a:', choices: ['Noun', 'Verb', 'Adjective'], a: 'Noun', why: 'جات بعد my.' },
-                            { q: 'She is a **nice** teacher. The part of speech of the underlined word is a:', choices: ['Noun', 'Verb', 'Adjective'], a: 'Adjective', why: 'لا اسم ولا فعل، توصف teacher.' },
-                            { q: 'They **answer** the questions correctly. The part of speech of the underlined word is a:', choices: ['Noun', 'Verb', 'Adjective'], a: 'Verb', why: 'جات بعد الفاعل They.' },
+                            { q: 'In the sentence "Reem reads a book every night." what is the verb?', choices: ['Reem', 'book', 'night', 'reads'], a: 'reads' },
+                            { q: 'In the sentence "The climate in Tabuk is cold." what is the noun?', choices: ['climate', 'is', 'cold', 'in'], a: 'climate', why: 'بعد The، وحتى لو ما تنلمس.' },
+                            { q: 'In the sentence "My cousins live in Riyadh." what is the verb?', choices: ['My', 'live', 'cousins', 'in'], a: 'live' },
+                            { q: 'In the sentence "Omar is a pilot." what is the verb?', choices: ['Omar', 'a', 'is', 'pilot'], a: 'is', why: 'is فعل حالة، كثير ينسونه.' },
+                            { q: 'My **watch** is new. The part of speech of the underlined word is a:', choices: ['Verb', 'Adjective', 'Noun'], a: 'Noun', why: 'بعد My. ونفس الكلمة في I watch TV فعل.' },
+                            { q: 'They **answer** the phone. The part of speech of the underlined word is a:', choices: ['Noun', 'Verb', 'Adjective'], a: 'Verb', why: 'بعد الفاعل They.' },
                         ],
                     },
                     {
@@ -509,39 +501,35 @@ export const TOPICS: Topic[] = [
                         title: 'Exercise C: Which word is different?',
                         instructions: 'اختر الكلمة اللي نوعها يختلف عن الباقي.',
                         items: [
-                            { q: 'Which of the following is NOT a noun?', choices: ['Autumn', 'Winter', 'Cloudy', 'Climate'], a: 'Cloudy', why: 'cloudy صفة، والباقي أسماء.' },
-                            { q: 'Which of the following is NOT a verb?', choices: ['Listen', 'Watch', 'Work', 'Teacher'], a: 'Teacher', why: 'teacher شخص، فهي اسم.' },
+                            { q: 'Which of the following is NOT a noun?', choices: ['Autumn', 'Winter', 'Climate', 'Cloudy'], a: 'Cloudy', why: 'cloudy صفة، والباقي أسماء ما تنلمس.' },
+                            { q: 'Which of the following is NOT a verb?', choices: ['Teacher', 'Listen', 'Watch', 'Work'], a: 'Teacher', why: 'teacher شخص، يعني اسم.' },
                             { q: 'Which of the following is NOT a noun?', choices: ['uncle', 'speaks', 'city', 'hobby'], a: 'speaks' },
-                            { q: 'Which of the following is NOT a verb?', choices: ['study', 'live', 'daughter', 'have'], a: 'daughter' },
-                            { q: 'Which of the following is NOT a noun?', choices: ['people', 'children', 'go', 'women'], a: 'go', why: 'الباقي جموع شاذة، وكلها أسماء.' },
-                            { q: 'Which of the following is NOT a verb?', choices: ['are', 'like', 'have', 'farm'], a: 'farm', why: 'are و like و have أفعال حالة.' },
+                            { q: 'Which of the following is NOT a verb?', choices: ['study', 'live', 'have', 'daughter'], a: 'daughter' },
+                            { q: 'Which of the following is NOT a noun?', choices: ['people', 'children', 'go', 'women'], a: 'go', why: 'people و children و women جموع شاذة، بس أسماء.' },
                         ],
                     },
                     {
                         type: 'exercise',
                         title: 'Exercise D: Singular or plural?',
-                        instructions: 'اختر الكلمة الصحيحة لكل جملة.',
+                        instructions: 'اختر الكلمة الصحيحة.',
                         items: [
-                            { q: 'My mother has three ___.', choices: ['sister', 'sisters'], a: 'sisters', why: 'بعد three يجي جمع.' },
-                            { q: 'I have only one ___.', choices: ['uncle', 'uncles'], a: 'uncle' },
-                            { q: 'My aunt is a ___.', choices: ['teacher', 'teachers'], a: 'teacher', why: 'بعد a يجي مفرد.' },
-                            { q: 'He speaks two ___.', choices: ['language', 'languages'], a: 'languages' },
-                            { q: 'Two ___ work on the farm.', choices: ['man', 'mans', 'men'], a: 'men', why: 'جمع شاذ.' },
-                            { q: 'My brother has two ___.', choices: ['child', 'childs', 'children'], a: 'children', why: 'جمع شاذ.' },
-                            { q: 'Many ___ live in Riyadh.', choices: ['person', 'peoples', 'people'], a: 'people', why: 'جمع person هو people.' },
-                            { q: 'Three ___ work in this hospital.', choices: ['woman', 'womans', 'women'], a: 'women' },
-                            { q: 'Yanbu and Jeddah are two ___.', choices: ['citys', 'cities'], a: 'cities', why: 'حرف ساكن + y، فتصير ies.' },
-                            { q: 'My father ___ TV every night.', choices: ['watchs', 'watches'], a: 'watches', why: 'تنتهي بـ ch، فتاخذ es.' },
+                            { q: 'My grandfather has four ___.', choices: ['cow', 'cows', 'cowes'], a: 'cows' },
+                            { q: 'Two ___ work on the farm.', choices: ['men', 'mans', 'man'], a: 'men', why: 'man جمعه شاذ.' },
+                            { q: 'My aunt has three ___.', choices: ['childs', 'child', 'children'], a: 'children', why: 'child جمعه شاذ.' },
+                            { q: 'Many ___ visit AlUla in winter.', choices: ['person', 'people', 'peoples'], a: 'people', why: 'person جمعه people، و people جمع أصلًا.' },
+                            { q: 'Yanbu and Jeddah are two ___.', choices: ['citys', 'cityes', 'cities'], a: 'cities', why: 'ساكن + y ← ies.' },
+                            { q: 'I have only one ___.', choices: ['sister', 'sisters', 'sisteres'], a: 'sister', why: 'one = مفرد.' },
                         ],
                     },
                     {
                         type: 'exercise',
-                        title: 'Exercise E: Write about your family',
-                        instructions: 'اكتب جملك عن عايلتك.',
+                        title: 'Exercise E: Write the plural',
+                        instructions: 'اكتب الجمع من راسك.',
                         items: [
-                            { q: 'Write a sentence about one person in your family. Use one verb and two nouns.', a: 'My father works in a hospital in Yanbu.' },
-                            { q: 'Write a sentence with a plural noun (for example: brothers, sisters, children).', a: 'I have two brothers and three sisters.' },
-                            { q: 'Write two sentences with the word "call": one as a verb and one as a noun.', a: 'I call my mother every day. The call is always long.' },
+                            { q: 'one woman → two ___', a: 'women' },
+                            { q: 'one box → three ___', a: 'boxes' },
+                            { q: 'one family → two ___', a: 'families' },
+                            { q: 'one person → five ___', a: 'people' },
                         ],
                     },
                 ],
@@ -605,7 +593,7 @@ export function blockViews(block: Block): LessonView[] {
     if (block.view) return [block.view];
     if (block.type === 'exercise') return ['practice'];
     if (block.type === 'try') return ['examples']; // بعد المثال اللي يناسبه
-    if (block.type === 'map') return ['explain', 'examples', 'practice']; // الخريطة يحتاجها الشرح والأمثلة والتمارين
+    if (block.type === 'map' || block.type === 'tree' || block.type === 'names') return ['explain', 'examples', 'practice']; // الخريطة والشجرة يحتاجها الشرح والأمثلة والتمارين
     if (block.type === 'formula') return ['explain', 'examples']; // القاعدة تطلع فوق أمثلتها بعد
     if (block.type === 'example' || block.type === 'breakdown') return ['examples'];
     return ['explain'];

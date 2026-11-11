@@ -5,6 +5,7 @@ import ChoiceExercise from '@/components/ChoiceExercise'
 import WritingCheck from '@/components/WritingCheck'
 import { useAiAccess } from '@/lib/useAiAccess'
 import { ESPRMATH_URL } from '@/lib/links'
+import { AI_COMING_SOON, AI_ENABLED, SHOW_ESPRMATH } from '@/lib/features'
 import type { Block } from '@/content/lessons'
 
 const PRIMARY = '#7a1f2b'
@@ -22,12 +23,20 @@ function RevealExercise({ ex }: { ex: Exercise }) {
             <p style={{ margin: '0 0 6px', color: '#6B5357', fontSize: '0.92rem' }}>{ex.instructions}</p>
             {/* الكتابة تحت كل سؤال للمعتمدين، وغيرهم يشوف تنبيه واحد بس */}
             <p style={{ margin: '0 0 12px', fontSize: '0.8rem', color: '#9b8a8d' }}>
-                {access === 'allowed' ? (
+                {!AI_ENABLED ? (
+                    `🤖 كتابة الجواب وتصحيحه بالذكاء ${AI_COMING_SOON}.`
+                ) : access === 'allowed' ? (
                     '✍️ اكتب جوابك تحت كل سؤال واضغط تحقق، والذكاء يقول لك صح أو غلط.'
                 ) : access === 'loading' ? null : (
                     <>
-                        🔒 كتابة الجواب وتصحيحه بالذكاء للحسابات المعتمدة في{' '}
-                        <a href={ESPRMATH_URL} target="_blank" rel="noopener noreferrer" dir="ltr" style={{ color: PRIMARY, fontWeight: 'bold' }}>EsprMath</a>.
+                        🔒 كتابة الجواب وتصحيحه بالذكاء للحسابات المعتمدة
+                        {SHOW_ESPRMATH && (
+                            <>
+                                {' '}في{' '}
+                                <a href={ESPRMATH_URL} target="_blank" rel="noopener noreferrer" dir="ltr" style={{ color: PRIMARY, fontWeight: 'bold' }}>EsprMath</a>
+                            </>
+                        )}
+                        .
                     </>
                 )}
             </p>
