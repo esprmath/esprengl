@@ -54,9 +54,10 @@ export default function WarmupQuestion({ warmup, lessonKey }: { warmup: Warmup; 
             aria-modal="true"
             aria-label="سؤال قبل الدرس"
             data-no-translate
-            style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(42,26,29,0.55)', backdropFilter: 'blur(3px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+            style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(42,26,29,0.55)', backdropFilter: 'blur(3px)', display: 'flex', overflowY: 'auto', padding: '16px' }}
         >
-            <div style={{ width: 'min(480px, 100%)', background: '#ffffff', borderRadius: '20px', padding: '22px 20px', boxShadow: '0 20px 50px rgba(42,26,29,0.35)', color: '#2A1A1D' }}>
+            {/* margin: auto يوسّط النافذة، ولو كانت أطول من الشاشة (جوال صغير) تنسحب بالسكرول بدل ما تنقص من فوق */}
+            <div style={{ margin: 'auto', width: 'min(480px, 100%)', background: '#ffffff', borderRadius: '20px', padding: '22px 20px', boxShadow: '0 20px 50px rgba(42,26,29,0.35)', color: '#2A1A1D' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                     <span style={{ background: PRIMARY, color: '#ffffff', fontSize: '0.75rem', fontWeight: 'bold', padding: '3px 10px', borderRadius: '6px' }}>قبل ما تبدأ</span>
                     <span style={{ fontSize: '0.8rem', color: '#9b8a8d' }}>خمّن حتى لو مو متأكد</span>
@@ -83,7 +84,7 @@ export default function WarmupQuestion({ warmup, lessonKey }: { warmup: Warmup; 
                                     background: isAnswer ? '#ECF8F1' : isWrongPick ? '#FDEEEC' : '#ffffff',
                                     color: '#2A1A1D',
                                     borderRadius: '12px',
-                                    padding: '12px 14px',
+                                    padding: '14px 14px',
                                     fontWeight: 'bold',
                                     fontSize: '0.98rem',
                                     cursor: answered ? 'default' : 'pointer',

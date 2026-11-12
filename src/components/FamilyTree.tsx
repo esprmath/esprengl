@@ -31,10 +31,10 @@ const css = `
   .ftree li::before, .ftree li::after, .ftree ul ul::before { height: 14px; }
   .ftree .unit { gap: 1px; }
   .ftree .heart { font-size: 0.6rem; }
-  .ftree .p { min-width: 0; width: 56px; padding: 4px 2px; border-radius: 8px; }
+  .ftree .p { min-width: 0; width: 62px; padding: 4px 2px; border-radius: 8px; }
   .ftree .e { font-size: 0.95rem; }
-  .ftree .n { font-size: 0.72rem; }
-  .ftree .r { font-size: 0.6rem; }
+  .ftree .n { font-size: 0.78rem; }
+  .ftree .r { font-size: 0.68rem; }
 }
 `
 

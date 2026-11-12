@@ -6,6 +6,7 @@ import LessonVideos from '@/components/LessonVideos'
 import ShareLesson from '@/components/ShareLesson'
 import LessonBlock, { NamedExercises, NamedWarmup } from '@/components/LessonBlock'
 import { NameProvider } from '@/components/NameChoice'
+import { LessonKeyProvider } from '@/components/LessonKey'
 import { TOPICS, courseSlug, findLesson, lessonPath, relatedLessons, blockViews } from '@/content/lessons'
 
 const PRIMARY = '#7a1f2b'
@@ -32,13 +33,15 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
     const found = findLesson(topicSlug, course)
     if (!found) notFound()
     const { topic, lesson } = found
-    const otherCourses = topic.lessons.filter((l) => l !== lesson)
-    const related = relatedLessons(topic, lesson)
+    // أقصى شي 3 دروس مشابهة، عشان الأسفل ما يطول
+    const related = relatedLessons(topic, lesson).slice(0, 3)
 
     // كل بلوك ياخذ كلاس القسم اللي يطلع فيه (v-explain / v-examples / v-practice)،
     // والعنوان ياخذ أقسام البلوكات اللي تحته، عشان يطلع مع أمثلته وشرحه
     const viewClass = (i: number) => {
         const block = lesson.blocks[i]
+        // درس بدون قسم أمثلة: كل شي (ما عدا التمارين) في الشرح
+        if (lesson.noExamples) return block.type === 'names' ? 'v-explain v-practice' : 'v-explain'
         if (block.type !== 'heading') return blockViews(block).map((v) => `v-${v}`).join(' ')
         const views = new Set<string>()
         for (let j = i + 1; j < lesson.blocks.length && lesson.blocks[j].type !== 'heading'; j++) {
@@ -49,7 +52,7 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
 
     const header = (
         <>
-            <Link href="/" style={{ color: PRIMARY, fontWeight: 'bold', fontSize: '0.9rem', textDecoration: 'none' }}>
+            <Link href="/" className="tap-link" style={{ color: PRIMARY, fontWeight: 'bold', fontSize: '0.9rem', textDecoration: 'none' }}>
                 → الرجوع للبحث
             </Link>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', margin: '18px 0 6px' }}>
@@ -63,6 +66,17 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
 
     const footer = (
         <>
+            {/* ملخص الدرس في صفحة وحدة للطباعة أو التحميل، للدروس اللي له ملخص */}
+            {lesson.summary && (
+                <Link href={`${lessonPath(topic, lesson)}/summary`} style={{ marginTop: '36px', display: 'flex', alignItems: 'center', gap: '12px', background: '#FBEFF1', border: `1.5px solid ${PRIMARY}55`, borderRadius: '14px', padding: '14px 16px', color: PRIMARY, textDecoration: 'none' }}>
+                    <span style={{ fontSize: '1.8rem' }}>📄</span>
+                    <span style={{ flex: 1 }}>
+                        <span style={{ display: 'block', fontWeight: 'bold', fontSize: '1.05rem' }}>ملخص الدرس في صفحة وحدة</span>
+                        <span style={{ display: 'block', fontSize: '0.88rem', color: '#6B5357' }}>حمّله PDF أو اطبعه وراجع منه بدون إنترنت</span>
+                    </span>
+                    <span style={{ fontWeight: 'bold' }}>←</span>
+                </Link>
+            )}
             {/* الدروس المشابهة يمين، وأزرار المشاركة جنبها يسار */}
             <section style={{ marginTop: '40px', borderTop: '1px solid #ecdcdd', paddingTop: '18px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '18px', flexWrap: 'wrap' }}>
                 {related.length > 0 && (
@@ -70,7 +84,7 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
                         <h2 style={{ fontSize: '1rem', color: '#6B5357', margin: '0 0 10px' }}>كمّل من نفس الدرس في {lesson.course}</h2>
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                             {related.map(({ topic: t, lesson: l }) => (
-                                <Link key={t.slug} href={lessonPath(t, l)} style={{ background: '#ffffff', border: '1px solid #ecdcdd', borderRadius: '8px', padding: '6px 12px', color: PRIMARY, fontWeight: 'bold', fontSize: '0.88rem', textDecoration: 'none' }}>
+                                <Link key={t.slug} href={lessonPath(t, l)} className="tap-link tap-pill" style={{ background: '#ffffff', border: '1px solid #ecdcdd', borderRadius: '8px', padding: '6px 12px', color: PRIMARY, fontWeight: 'bold', fontSize: '0.88rem', textDecoration: 'none' }}>
                                     {t.titleAr} · <span dir="ltr">{l.title}</span>
                                 </Link>
                             ))}
@@ -82,23 +96,12 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
                     <ShareLesson title={lesson.title} course={lesson.course} />
                 </div>
             </section>
-            {otherCourses.length > 0 && (
-                <section style={{ marginTop: '40px', borderTop: '1px solid #ecdcdd', paddingTop: '18px' }}>
-                    <h2 style={{ fontSize: '1rem', color: '#6B5357', margin: '0 0 10px' }}>نفس الدرس في مواد ثانية</h2>
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                        {otherCourses.map((l) => (
-                            <Link key={l.course} href={lessonPath(topic, l)} style={{ background: '#ffffff', border: '1px solid #ecdcdd', borderRadius: '8px', padding: '6px 12px', color: PRIMARY, fontWeight: 'bold', fontSize: '0.88rem', textDecoration: 'none' }}>
-                                {l.course}
-                            </Link>
-                        ))}
-                    </div>
-                </section>
-            )}
         </>
     )
 
     return (
-        <LessonShell header={header} footer={footer} ai={{ course: lesson.course, topic: topic.title, lesson: lesson.title }}>
+        <LessonShell header={header} footer={footer} hideExamples={lesson.noExamples} ai={{ course: lesson.course, topic: topic.title, lesson: lesson.title }}>
+            <LessonKeyProvider lessonKey={`${topic.slug}/${courseSlug(lesson.course)}`}>
             <NameProvider>
             {lesson.warmup && <NamedWarmup warmup={lesson.warmup} lessonKey={`${topic.slug}/${courseSlug(lesson.course)}`} />}
             {lesson.videos?.length ? (
@@ -110,7 +113,7 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
                 {lesson.blocks.map((block, i) =>
                     block.type === 'exercise' ? null : (
                         <div key={i} className={viewClass(i)}>
-                            <LessonBlock block={block} />
+                            <LessonBlock block={block} index={i} />
                         </div>
                     ),
                 )}
@@ -119,6 +122,7 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
                 <NamedExercises exercises={lesson.blocks.filter((b) => b.type === 'exercise')} />
             </div>
             </NameProvider>
+            </LessonKeyProvider>
         </LessonShell>
     )
 }

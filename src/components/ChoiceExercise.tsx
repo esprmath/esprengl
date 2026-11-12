@@ -32,9 +32,31 @@ function Marked({ text }: { text: string }) {
 
 /**
  * تمرين اختيار: الطالب يختار لكل سؤال، وفي الأخير يضغط تحقق.
- * الخيارات المشتركة تطلع جنب السؤال، والسؤال اللي له خيارات خاصة تطلع خياراته تحته
+ * الخيارات المشتركة تطلع جنب السؤال، والسؤال اللي له خيارات خاصة تطلع خياراته تحته.
+ *
+ * onChecked: يُستدعى لما يضغط تحقق، ومعه صح/غلط لكل سؤال (للنقاط).
+ * allowRetry: false في المرة الأولى لتمارين الدرس (ما يعيد قبل ما يخلص كل التمارين).
+ * after: شي يطلع تحت النتيجة (مثل زر "التمرين التالي" أو سطر النقاط).
  */
-export default function ChoiceExercise({ title, instructions, choices = [], items, badge = 'تمرين' }: { title: string; instructions: string; choices?: string[]; items: Item[]; badge?: string }) {
+export default function ChoiceExercise({
+    title,
+    instructions,
+    choices = [],
+    items,
+    badge = 'تمرين',
+    onChecked,
+    allowRetry = true,
+    after,
+}: {
+    title: string
+    instructions: string
+    choices?: string[]
+    items: Item[]
+    badge?: string
+    onChecked?: (results: boolean[]) => void
+    allowRetry?: boolean
+    after?: (score: number, total: number) => React.ReactNode
+}) {
     const [picked, setPicked] = useState<(string | null)[]>(() => items.map(() => null))
     const [checked, setChecked] = useState(false)
 
@@ -44,6 +66,10 @@ export default function ChoiceExercise({ title, instructions, choices = [], item
     const pick = (i: number, c: string) => {
         if (checked) return
         setPicked((p) => p.map((v, j) => (j === i ? c : v)))
+    }
+    const check = () => {
+        setChecked(true)
+        onChecked?.(items.map((it, i) => picked[i] === it.a))
     }
     const reset = () => {
         setPicked(items.map(() => null))
@@ -67,8 +93,8 @@ export default function ChoiceExercise({ title, instructions, choices = [], item
                     const own = !!item.choices
                     const options = item.choices ?? choices
                     return (
-                        <li key={i} style={{ display: 'flex', flexDirection: own ? 'column-reverse' : 'row-reverse', gap: own ? '8px' : '12px', alignItems: own ? 'stretch' : 'flex-start', background: rowBg, border: `1px solid ${rowBorder}`, borderRadius: '10px', padding: '10px 12px' }}>
-                            <div style={{ display: 'flex', gap: '6px', flexShrink: 0, flexWrap: own ? 'wrap' : 'nowrap' }}>
+                        <li key={i} className={own ? 'choice-row' : 'choice-row choice-row-side'} style={{ display: 'flex', flexDirection: own ? 'column-reverse' : 'row-reverse', gap: own ? '8px' : '12px', alignItems: own ? 'stretch' : 'flex-start', background: rowBg, border: `1px solid ${rowBorder}`, borderRadius: '10px', padding: '10px 12px' }}>
+                            <div className="choice-opts" style={{ display: 'flex', gap: '6px', flexShrink: 0, flexWrap: own ? 'wrap' : 'nowrap' }}>
                                 {options.map((c, ci) => {
                                     const col = COLORS[ci % COLORS.length]
                                     const isMine = mine === c
@@ -118,7 +144,7 @@ export default function ChoiceExercise({ title, instructions, choices = [], item
                 {!checked ? (
                     <>
                         <button
-                            onClick={() => setChecked(true)}
+                            onClick={check}
                             disabled={answered === 0}
                             style={{ background: answered ? PRIMARY : '#d9c5c8', color: '#ffffff', border: 'none', borderRadius: '10px', padding: '10px 22px', fontWeight: 'bold', fontSize: '0.95rem', cursor: answered ? 'pointer' : 'default' }}
                         >
@@ -131,12 +157,15 @@ export default function ChoiceExercise({ title, instructions, choices = [], item
                         <span style={{ fontWeight: 'bold', fontSize: '1.05rem', color: score === items.length ? '#1E7A4A' : PRIMARY }}>
                             {score === items.length ? '🎉 ' : ''}نتيجتك {score} من {items.length}
                         </span>
-                        <button onClick={reset} style={{ background: '#ffffff', color: PRIMARY, border: `1px solid ${PRIMARY}`, borderRadius: '10px', padding: '8px 18px', fontWeight: 'bold', fontSize: '0.9rem', cursor: 'pointer' }}>
-                            حاول مرة ثانية
-                        </button>
+                        {allowRetry && (
+                            <button onClick={reset} style={{ background: '#ffffff', color: PRIMARY, border: `1px solid ${PRIMARY}`, borderRadius: '10px', padding: '8px 18px', fontWeight: 'bold', fontSize: '0.9rem', cursor: 'pointer' }}>
+                                حاول مرة ثانية
+                            </button>
+                        )}
                     </>
                 )}
             </div>
+            {checked && after?.(score, items.length)}
         </section>
     )
 }

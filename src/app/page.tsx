@@ -15,6 +15,7 @@ import { logSearchMiss } from '@/lib/searchLog'
 import { TOPICS, searchTopics } from '@/content/lessons'
 import { SESSIONS, SECTIONS, SESSION_MINUTES, SESSIONS_ENABLED, nextSession } from '@/content/sessions'
 import { fetchCompletedPlans } from '@/lib/planProgress'
+import { usePoints } from '@/lib/points'
 
 const PRIMARY = '#7a1f2b'
 
@@ -32,6 +33,7 @@ export default function HomePage() {
     const [query, setQuery] = useState('')
     const [tab, setTab] = useState<'search' | 'plans'>('search')
     const [completed, setCompleted] = useState<Set<string>>(new Set())
+    const { total: points } = usePoints()
 
     // الموقع مفتوح للكل، الدخول لإظهار الاسم وقوائم المشرف وحفظ الخطط المنتهية
     useEffect(() => {
@@ -83,6 +85,13 @@ export default function HomePage() {
                         ? 'ابحث عن أي درس، ويطلع لك شرحه بالضبط زي ما هو في كتاب مادتك'
                         : 'جلسة وحدة تمرّ فيها على كل شي: كلمات، قاعدة، قراءة، استماع، نطق، وكتابة'}
                 </p>
+                {/* نقاط الطالب: من أسئلة الدروس وتمارينها. للزائر تبقى في متصفحه، وللمسجل تنحفظ في حسابه */}
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '14px', background: '#FFF8E6', border: '1px solid #F2DCA8', borderRadius: '999px', padding: '6px 16px', color: '#8a4b0a', fontWeight: 'bold', fontSize: '0.95rem' }}>
+                    <span>⭐ نقاطك: {points}</span>
+                    <span style={{ fontWeight: 'normal', fontSize: '0.8rem', color: '#9b6b2a' }}>
+                        {isLoggedIn ? '· تنحفظ في حسابك' : points > 0 ? '· سجّل دخول عشان تنحفظ في حسابك' : '· حل أسئلة وتمارين الدروس واجمع نقاط'}
+                    </span>
+                </div>
                 {/* اختصارات: تعلم كلمات للكل، و"ضايع بالانقلش؟ ابني خطتك" بالذكاء */}
                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '16px' }}>
                     <Link href="/words" style={shortcut}>📚 تعلم كلمات <span style={{ fontWeight: 'normal', color: '#9b8a8d' }}>· 5 دقايق</span></Link>

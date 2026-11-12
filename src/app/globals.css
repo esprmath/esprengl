@@ -462,6 +462,49 @@ body {
   .mobile-only { display: none !important; }
 }
 
+/* ───── الجوال: صفحة الدرس (أهداف لمس مريحة، ونص ما ينضغط) ───── */
+@media (max-width: 699px) {
+  /* أزرار وروابط أكبر من 44px عشان الإصبع، إلا الدوائر في شريط الأقسام (حجمها محدد) */
+  #lesson-main button:not(.no-tap),
+  #lesson-main summary {
+    min-height: 44px;
+  }
+  #lesson-main .tap-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  #lesson-main .tap-pill { padding-block: 0 !important; }
+
+  /* الحقول بخط 16px على الأقل، وإلا آيفون يكبّر الصفحة لما تلمس الحقل */
+  #lesson-main input,
+  #lesson-main textarea,
+  #lesson-main select {
+    font-size: 16px !important;
+  }
+
+  /* سؤال الاختيار: السؤال بعرض الشاشة كاملة والخيارات تحته بعرض متساوي، بدل ما ينضغط السؤال في عمود ضيق */
+  #lesson-main .choice-row {
+    flex-direction: column-reverse !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+  #lesson-main .choice-opts {
+    flex-wrap: wrap !important;
+    width: 100%;
+  }
+  #lesson-main .choice-opts button {
+    flex: 1 1 auto;
+    min-width: 72px;
+    padding: 8px 12px !important;
+    font-size: 0.95rem !important;
+  }
+
+  /* زر "التالي" بعرض الشاشة */
+  #lesson-main .next-view-btn { width: 100%; }
+  #lesson-main .next-view-btn { padding-block: 14px !important; }
+}
+
 /* وضع الترجمة: المؤشر يوضح إن الكلمات تنضغط */
 .lesson.translating { cursor: help; }
 .lesson.translating button, .lesson.translating a { cursor: pointer; }

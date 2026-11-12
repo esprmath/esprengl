@@ -73,7 +73,8 @@ export default function LessonChat({ variant, course, topic, lesson }: { variant
                 onClick={() => setOpen((o) => !o)}
                 aria-expanded={open}
                 aria-label={label}
-                style={{ position: 'relative', flexShrink: 0, width: '40px', height: '40px', borderRadius: '50%', background: open ? '#ffffff' : PRIMARY, color: open ? PRIMARY : '#ffffff', border: `2px solid ${PRIMARY}`, boxShadow: '0 6px 16px rgba(122,31,43,0.3)', fontSize: '1.2rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
+                className="no-tap"
+                style={{ position: 'relative', flexShrink: 0, width: '44px', height: '44px', borderRadius: '50%', background: open ? '#ffffff' : PRIMARY, color: open ? PRIMARY : '#ffffff', border: `2px solid ${PRIMARY}`, boxShadow: '0 6px 16px rgba(122,31,43,0.3)', fontSize: '1.2rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
             >
                 {open ? '×' : '🤖'}
                 {!open && badge}

@@ -1,7 +1,7 @@
 import type { Part, PartKind } from '@/content/lessons'
 
 // ألوان أجزاء الجملة، متناسقة مع العنابي
-const KINDS: Record<PartKind, { label: string; color: string; bg: string }> = {
+export const KINDS: Record<PartKind, { label: string; color: string; bg: string }> = {
     s: { label: 'Subject', color: '#1F4E79', bg: '#E4EDF7' },
     v: { label: 'Verb', color: '#0F6B5C', bg: '#DDF1EB' },
     hv: { label: 'Helping verb', color: '#0F6B5C', bg: '#DDF1EB' },
@@ -91,7 +91,7 @@ export function Breakdown({ parts, ar }: { parts: Part[]; ar?: string }) {
                             const s = p[1] ? KINDS[p[1]] : null
                             return (
                                 <div key={i} style={{ display: 'flex', alignItems: 'baseline', gap: '8px', fontSize: '0.85rem' }}>
-                                    <span style={{ flexShrink: 0, minWidth: '104px', fontSize: '0.68rem', fontWeight: 'bold', textTransform: 'uppercase', color: s?.color ?? '#9b8a8d' }}>{labelOf(p)}</span>
+                                    <span style={{ flexShrink: 0, minWidth: '118px', fontSize: '0.76rem', fontWeight: 'bold', textTransform: 'uppercase', color: s?.color ?? '#9b8a8d' }}>{labelOf(p)}</span>
                                     <span style={{ color: s?.color ?? '#2A1A1D', fontWeight: 600 }}>{p[1] === 'p' ? `${p[0]}` : p[0]}</span>
                                 </div>
                             )
@@ -134,13 +134,13 @@ export function Formula({ parts }: { parts: Part[] }) {
                                 <span style={{ background: s?.bg ?? '#ffffff', color: s?.color ?? '#2A1A1D', borderBottom: `2px solid ${s?.color ?? '#ecdcdd'}`, borderRadius: '6px', padding: '3px 7px', fontSize: '0.82rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
                                     {isPunct ? (
                                         <>
-                                            <span style={{ fontSize: '1rem' }}>{text}</span> <span style={{ fontSize: '0.65rem', textTransform: 'uppercase' }}>{labelOf(p)}</span>
+                                            <span style={{ fontSize: '1rem' }}>{text}</span> <span style={{ fontSize: '0.72rem', textTransform: 'uppercase' }}>{labelOf(p)}</span>
                                         </>
                                     ) : labelOf(p) && labelOf(p).toLowerCase() !== text.toLowerCase() ? (
                                         // مثل Idea 1 وتحتها INDEPENDENT، عشان ما يضيع الفرق بين المستقلة والتابعة
                                         <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1.15 }}>
                                             {text}
-                                            <span style={{ fontSize: '0.58rem', textTransform: 'uppercase', opacity: 0.8 }}>{labelOf(p)}</span>
+                                            <span style={{ fontSize: '0.74rem', textTransform: 'uppercase', opacity: 0.9 }}>{labelOf(p)}</span>
                                         </span>
                                     ) : (
                                         text

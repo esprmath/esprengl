@@ -1,6 +1,10 @@
 'use client'
 
-import { Breakdown, Formula } from '@/components/SentenceParts'
+import { Breakdown, Formula, KINDS } from '@/components/SentenceParts'
+import LessonErrors from '@/components/LessonErrors'
+import FixCard from '@/components/FixCard'
+import { useLessonKey } from '@/components/LessonKey'
+import { recordPoints } from '@/lib/points'
 import WritingCheck from '@/components/WritingCheck'
 import ChoiceExercise from '@/components/ChoiceExercise'
 import FamilyTree from '@/components/FamilyTree'
@@ -35,7 +39,27 @@ function LessonMap({ rows, caption }: { rows: string[][]; caption?: string }) {
     )
 }
 
-function BlockView({ block }: { block: Block }) {
+/** سؤال سريع وسط الشرح: كل سؤال نقطة، وتنحسب مباشرة */
+function QuickCheck({ block, id, onDone }: { block: Extract<Block, { type: 'check' }>; id: string; onDone?: () => void }) {
+    const lessonKey = useLessonKey()
+    return (
+        <ChoiceExercise
+            badge="سؤال سريع"
+            title="تأكد إنك فهمت"
+            instructions="جاوب واضغط تحقق، وبعدها كمّل."
+            choices={block.choices}
+            items={block.items}
+            onChecked={(results) => {
+                if (lessonKey) recordPoints(results.map((ok, q) => ({ key: `c:${lessonKey}#${id}.${q}`, points: ok ? 1 : 0 })))
+                onDone?.()
+            }}
+            after={(score) => (lessonKey ? <div style={{ marginTop: '10px' }}><span style={{ background: '#FDEBC8', color: '#8a4b0a', borderRadius: '999px', padding: '4px 12px', fontWeight: 'bold', fontSize: '0.85rem' }}>⭐ +{score} نقطة</span></div> : null)}
+        />
+    )
+}
+
+/** id: رقم البلوك في الدرس (ومعه مسار الخطأ لو داخل ورقة أخطاء)، يتركب منه مفتاح نقاط كل سؤال */
+function BlockView({ block, id, onCheck }: { block: Block; id: string; onCheck?: () => void }) {
     switch (block.type) {
         case 'names':
             return <NamePicker />
@@ -63,7 +87,38 @@ function BlockView({ block }: { block: Block }) {
         case 'try':
             return <WritingCheck task={block.task} reference={block.reference} placeholder={block.placeholder} />
         case 'check':
-            return <ChoiceExercise badge="سؤال سريع" title="تأكد إنك فهمت" instructions="جاوب واضغط تحقق، وبعدها كمّل." choices={block.choices} items={block.items} />
+            return <QuickCheck block={block} id={id} onDone={onCheck} />
+        case 'label':
+            return (
+                <div>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#F7E6E8', color: '#5A1520', fontWeight: 'bold', fontSize: '0.85rem', padding: '3px 12px', borderRadius: '999px' }}>
+                        {block.icon && <span>{block.icon}</span>}
+                        {block.text}
+                    </span>
+                </div>
+            )
+        case 'steps':
+            return (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '10px' }}>
+                    {block.items.map((it, i) => {
+                        const k = KINDS[it.kind]
+                        return (
+                            <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', background: '#ffffff', border: `1px solid ${k.color}44`, borderTop: `4px solid ${k.color}`, borderRadius: '12px', padding: '12px 14px' }}>
+                                <span style={{ flexShrink: 0, width: '34px', height: '34px', borderRadius: '50%', background: k.color, color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.05rem' }}>{i + 1}</span>
+                                <div style={{ minWidth: 0 }}>
+                                    <div style={{ fontWeight: 'bold', fontSize: '1.05rem', color: k.color }}>{it.title}</div>
+                                    {it.ar && <div style={{ fontSize: '0.88rem', color: '#6B5357', lineHeight: 1.7, marginTop: '2px' }}>{it.ar}</div>}
+                                    {it.en && <div dir="ltr" style={{ display: 'inline-block', marginTop: '6px', background: k.bg, color: k.color, borderRadius: '6px', padding: '2px 8px', fontWeight: 600, fontSize: '0.95rem' }}>{it.en}</div>}
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
+            )
+        case 'errors':
+            return <LessonErrors title={block.title} items={block.items} fixed={block.fixed} renderBlocks={(blocks, prefix, done) => blocks.map((b, j) => <BlockView key={j} block={b} id={`${id}.${prefix}.${j}`} onCheck={done} />)} />
+        case 'fix':
+            return <FixCard id={id} label={block.label} kind={block.kind} wrong={block.wrong} mark={block.mark} options={block.options} answer={block.answer} why={block.why} parts={block.parts} onSolved={onCheck} />
         case 'map':
             return <LessonMap rows={block.rows} caption={block.caption} />
         case 'tree':
@@ -78,7 +133,7 @@ function BlockView({ block }: { block: Block }) {
             const isEn = block.lang !== 'ar'
             const Tag = block.ordered ? 'ol' : 'ul'
             return (
-                <Tag dir={isEn ? 'ltr' : 'rtl'} style={{ margin: 0, paddingInlineStart: '26px', fontSize: '1.03rem', lineHeight: 1.9, background: '#ffffff', border: '1px solid #ecdcdd', borderRadius: '10px', padding: '12px 14px 12px 34px' }}>
+                <Tag dir={isEn ? 'ltr' : 'rtl'} style={{ margin: 0, fontSize: '1.03rem', lineHeight: 1.9, background: '#ffffff', border: '1px solid #ecdcdd', borderRadius: '10px', padding: '12px 14px', paddingInlineStart: '38px' }}>
                     {block.items.map((item, i) => <li key={i}>{item}</li>)}
                 </Tag>
             )
@@ -133,9 +188,9 @@ function BlockView({ block }: { block: Block }) {
 }
 
 /** بلوك بعد ما تتبدل رموز الأسماء فيه */
-export default function LessonBlock({ block }: { block: Block }) {
+export default function LessonBlock({ block, index }: { block: Block; index: number }) {
     const choice = useNameChoice()
-    return <BlockView block={fillDeep(block, choice)} />
+    return <BlockView block={fillDeep(block, choice)} id={String(index)} />
 }
 
 /** التمارين بنفس الاسم */

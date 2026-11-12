@@ -8,7 +8,7 @@ import LessonChat from '@/components/LessonChat'
 import { pillStyle } from '@/components/pillStyle'
 import type { LessonView } from '@/content/lessons'
 
-const VIEWS: (SideNavItem & { key: LessonView })[] = [
+const ALL_VIEWS: (SideNavItem & { key: LessonView })[] = [
     { key: 'explain', label: 'شرح', icon: '📖' },
     { key: 'examples', label: 'أمثلة', icon: '💡' },
     { key: 'practice', label: 'تدريب', icon: '✍️' },
@@ -18,10 +18,19 @@ const VIEWS: (SideNavItem & { key: LessonView })[] = [
  * غلاف صفحة الدرس. في الشاشات الكبيرة: نافبار جانبي فيه 3 دوائر (شرح، أمثلة، تدريب)
  * والصفحة تعرض القسم المختار بس. على الجوال: نفس الأقسام في شريط بالعرض فوق الدرس، يختفي مع السكرول لتحت ويرجع مع السكرول لفوق.
  */
-export default function LessonShell({ header, children, footer, ai }: { header: React.ReactNode; children: React.ReactNode; footer?: React.ReactNode; ai?: { course: string; topic: string; lesson: string } }) {
+export default function LessonShell({ header, children, footer, ai, hideExamples }: { header: React.ReactNode; children: React.ReactNode; footer?: React.ReactNode; ai?: { course: string; topic: string; lesson: string }; hideExamples?: boolean }) {
+    // درس أمثلته داخل الشرح (شرح ثم مثال ثم سؤال): ما يحتاج قسم أمثلة
+    const VIEWS = hideExamples ? ALL_VIEWS.filter((v) => v.key !== 'examples') : ALL_VIEWS
     const [view, setView] = useState<LessonView>('explain')
     const [translating, setTranslating] = useState(false)
     const barVisible = useShowOnScrollUp()
+
+    // رابط فيه ?tab=practice (مثل رمز الملخص المطبوع) يفتح الدرس على التدريب مباشرة
+    useEffect(() => {
+        const tab = new URLSearchParams(window.location.search).get('tab')
+        if (tab && VIEWS.some((v) => v.key === tab)) setView(tab as LessonView)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
     const index = VIEWS.findIndex((v) => v.key === view)
     const next = VIEWS[index + 1]
 
@@ -63,7 +72,7 @@ export default function LessonShell({ header, children, footer, ai }: { header: 
                                     key={v.key}
                                     onClick={() => go(v.key)}
                                     aria-pressed={on}
-                                    style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', border: 'none', borderRadius: '999px', padding: '7px 2px', background: on ? '#ffffff' : 'transparent', color: on ? '#7a1f2b' : '#ffffff', fontWeight: 'bold', fontSize: '0.8rem', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                                    style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', border: 'none', borderRadius: '999px', padding: '10px 2px', background: on ? '#ffffff' : 'transparent', color: on ? '#7a1f2b' : '#ffffff', fontWeight: 'bold', fontSize: '0.8rem', cursor: 'pointer', whiteSpace: 'nowrap' }}
                                 >
                                     <span style={{ fontSize: '0.9rem' }}>{v.icon}</span>
                                     {v.label}
@@ -79,6 +88,7 @@ export default function LessonShell({ header, children, footer, ai }: { header: 
                 {next && (
                     <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '36px' }}>
                         <button
+                            className="next-view-btn"
                             onClick={() => go(next.key)}
                             style={{ background: '#7a1f2b', color: '#ffffff', border: 'none', borderRadius: '12px', padding: '12px 22px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer' }}
                         >
@@ -100,7 +110,8 @@ function TranslateToggle({ on, onToggle, floating }: { on: boolean; onToggle: ()
                 onClick={onToggle}
                 aria-pressed={on}
                 aria-label={on ? 'إيقاف الترجمة' : 'ترجم'}
-                style={{ flexShrink: 0, width: '40px', height: '40px', borderRadius: '50%', background: on ? '#ffffff' : '#7a1f2b', border: '2px solid #7a1f2b', boxShadow: '0 6px 16px rgba(122,31,43,0.25)', fontSize: '1.1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
+                className="no-tap"
+                style={{ flexShrink: 0, width: '44px', height: '44px', borderRadius: '50%', background: on ? '#ffffff' : '#7a1f2b', border: '2px solid #7a1f2b', boxShadow: '0 6px 16px rgba(122,31,43,0.25)', fontSize: '1.1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
             >
                 🌐
             </button>
