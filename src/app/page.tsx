@@ -196,7 +196,7 @@ export default function HomePage() {
             </section>
             )}
 
-            {/* للمشرف بس: كل الدروس، وطلاب الإنجليزي، وعمليات البحث */}
+            {/* للمشرف بس: الدروس بالمادة والوحدة (الطلاب والبحث صفحات لحالها من النافبار الجانبي) */}
             {isAdmin && <AdminHomePanel />}
 
             {/* إعلان EsprMath مخفي مؤقتًا: يرجع لما SHOW_ESPRMATH = true في src/lib/features.ts */}

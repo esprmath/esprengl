@@ -13,18 +13,28 @@ export default function TopicCard({ topic, course }: { topic: Topic; course?: st
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {topic.lessons.filter((l) => !course || l.course === course).map((lesson) => (
-                    <Link
-                        key={lesson.course}
-                        href={lessonPath(topic, lesson)}
-                        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', background: '#F7E6E8', borderRadius: '10px', padding: '10px 12px', textDecoration: 'none' }}
-                    >
-                        <span dir="ltr" style={{ color: '#5A1520', fontSize: '0.92rem' }}>
-                            {lesson.unit ? `${lesson.unit} · ` : ''}{lesson.title}
-                        </span>
-                        <span style={{ flexShrink: 0, background: PRIMARY, color: '#ffffff', fontSize: '0.78rem', fontWeight: 'bold', padding: '3px 9px', borderRadius: '6px' }}>
-                            {lesson.course}
-                        </span>
-                    </Link>
+                    <div key={lesson.course} style={{ display: 'flex', alignItems: 'stretch', gap: '6px' }}>
+                        <Link
+                            href={lessonPath(topic, lesson)}
+                            style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', background: '#F7E6E8', borderRadius: '10px', padding: '10px 12px', textDecoration: 'none' }}
+                        >
+                            <span dir="ltr" style={{ color: '#5A1520', fontSize: '0.92rem' }}>
+                                {lesson.unit ? `${lesson.unit} · ` : ''}{lesson.title}
+                            </span>
+                            <span style={{ flexShrink: 0, background: PRIMARY, color: '#ffffff', fontSize: '0.78rem', fontWeight: 'bold', padding: '3px 9px', borderRadius: '6px' }}>
+                                {lesson.course}
+                            </span>
+                        </Link>
+                        {/* ملخص الدرس (صفحة A4 للطباعة): يطلع للدروس اللي لها ملخص */}
+                        {lesson.summary && (
+                            <Link
+                                href={`${lessonPath(topic, lesson)}/summary`}
+                                style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '84px', background: PRIMARY, border: `2px solid ${PRIMARY}`, color: '#ffffff', borderRadius: '12px', padding: '12px 20px', fontWeight: 'bold', fontSize: '1.05rem', textDecoration: 'none', boxShadow: '0 2px 8px rgba(122,31,43,0.25)' }}
+                            >
+                                الملخص
+                            </Link>
+                        )}
+                    </div>
                 ))}
             </div>
         </div>

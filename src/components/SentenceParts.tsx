@@ -63,13 +63,16 @@ function Piece({ part, chip }: { part: Part; chip?: boolean }) {
  * في الجوال الأسماء فوق الأجزاء تتلخبط لما تنزل الجملة سطرين، فنعرض الجملة ملوّنة كنص عادي،
  * وتحتها قائمة: اسم كل جزء ← الجزء نفسه بنفس اللون.
  */
-export function Breakdown({ parts, ar }: { parts: Part[]; ar?: string }) {
+export function Breakdown({ parts, ar, mean }: { parts: Part[]; ar?: string; mean?: string }) {
     const named = parts.filter((p) => labelOf(p))
+    // معنى الجملة بالعربي: سطر صغير رمادي تحت الجملة على طول، للي يبدأ من الصفر
+    const meaning = mean ? <div dir="rtl" style={{ fontSize: '0.86rem', color: '#9b8a8d', marginTop: '4px' }}>{mean}</div> : null
     return (
         <div style={{ background: '#ffffff', border: '1px solid #ecdcdd', borderRadius: '12px', padding: '12px 14px' }}>
             <div className="desk-only" dir="ltr" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: '22px 3px', paddingBottom: '16px' }}>
                 {parts.map((p, i) => <Piece key={i} part={p} />)}
             </div>
+            {meaning && <div className="desk-only" style={{ marginTop: '-8px' }}>{meaning}</div>}
 
             <div className="mobile-only" dir="ltr">
                 <p style={{ margin: 0, fontSize: '1rem', lineHeight: 2.1 }}>
@@ -85,6 +88,7 @@ export function Breakdown({ parts, ar }: { parts: Part[]; ar?: string }) {
                         )
                     })}
                 </p>
+                {meaning}
                 {named.length > 0 && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginTop: '10px', paddingTop: '10px', borderTop: '1px dashed #ecdcdd' }}>
                         {named.map((p, i) => {

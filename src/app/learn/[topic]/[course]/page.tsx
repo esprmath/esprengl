@@ -72,7 +72,7 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
                     <span style={{ fontSize: '1.8rem' }}>📄</span>
                     <span style={{ flex: 1 }}>
                         <span style={{ display: 'block', fontWeight: 'bold', fontSize: '1.05rem' }}>ملخص الدرس في صفحة وحدة</span>
-                        <span style={{ display: 'block', fontSize: '0.88rem', color: '#6B5357' }}>حمّله PDF أو اطبعه وراجع منه بدون إنترنت</span>
+                        <span style={{ display: 'block', fontSize: '0.88rem', color: '#6B5357' }}>حمّله PDF وراجع منه بدون إنترنت</span>
                     </span>
                     <span style={{ fontWeight: 'bold' }}>←</span>
                 </Link>
@@ -112,7 +112,7 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {lesson.blocks.map((block, i) =>
                     block.type === 'exercise' ? null : (
-                        <div key={i} className={viewClass(i)}>
+                        <div key={i} className={viewClass(i)} data-lesson-block>
                             <LessonBlock block={block} index={i} />
                         </div>
                     ),

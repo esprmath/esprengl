@@ -1,14 +1,18 @@
+'use client'
+
+import { useEffect, useRef, useState } from 'react'
 import type { TreeNode, TreePerson } from '@/content/lessons'
 
 // شجرة عائلة بخطوط تتفرع (CSS بس، بدون مكتبات). كل عقدة: شخص أو زوجين، وتحتهم عيالهم موصولين بخطوط.
-// على الجوال تصغر البطاقات، وإذا الشجرة أعرض من الشاشة يتمرر صندوقها لحاله بدون ما تتحرك الصفحة.
+// على الجوال تصغر البطاقات، وإذا الشجرة بعد كذا أعرض من الشاشة تتصغر كلها بنسبة وحدة عشان تبان كاملة بدون سكرول.
 
 const LINE = '#C98C94'
 
 const css = `
-.ftree { overflow-x: auto; padding: 4px 0 2px; }
+.ftree { overflow: hidden; padding: 4px 0 2px; }
+.ftree .fit { transform-origin: top left; }
 .ftree ul { display: flex; justify-content: center; margin: 0; padding: 22px 0 0; position: relative; }
-.ftree > ul { padding-top: 0; min-width: max-content; margin: 0 auto; }
+.ftree .fit > ul { padding-top: 0; min-width: max-content; margin: 0; }
 .ftree li { list-style: none; text-align: center; position: relative; padding: 22px 5px 0; }
 .ftree li::before, .ftree li::after { content: ''; position: absolute; top: 0; right: 50%; width: 50%; height: 22px; border-top: 2px solid ${LINE}; }
 .ftree li::after { right: auto; left: 50%; border-left: 2px solid ${LINE}; }
@@ -73,13 +77,39 @@ function Node({ node }: { node: TreeNode }) {
 }
 
 export default function FamilyTree({ root, caption }: { root: TreeNode; caption?: string }) {
+    const box = useRef<HTMLDivElement>(null)
+    const fit = useRef<HTMLDivElement>(null)
+    const [view, setView] = useState({ scale: 1, shift: 0, height: undefined as number | undefined })
+
+    // نقيس عرض الشجرة الطبيعي وعرض المكان، ونصغّرها لو ما كفت، ونوسّطها
+    useEffect(() => {
+        const update = () => {
+            const b = box.current
+            const f = fit.current
+            if (!b || !f) return
+            const cs = getComputedStyle(b)
+            const avail = b.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
+            const natural = f.offsetWidth
+            const scale = Math.min(1, avail / natural)
+            setView({ scale, shift: (avail - natural * scale) / 2, height: f.offsetHeight * scale })
+        }
+        update()
+        const ro = new ResizeObserver(update)
+        if (box.current) ro.observe(box.current)
+        return () => ro.disconnect()
+    }, [])
+
     return (
         <figure style={{ margin: 0 }}>
             <style>{css}</style>
-            <div className="ftree" dir="ltr" style={{ background: '#ffffff', border: '1px solid #ecdcdd', borderRadius: '12px', padding: '12px 6px' }}>
-                <ul>
-                    <Node node={root} />
-                </ul>
+            <div ref={box} className="ftree" dir="ltr" style={{ background: '#ffffff', border: '1px solid #ecdcdd', borderRadius: '12px', padding: '12px 6px' }}>
+                <div style={{ height: view.height }}>
+                    <div ref={fit} className="fit" style={{ width: 'max-content', transform: `translateX(${view.shift}px) scale(${view.scale})` }}>
+                        <ul>
+                            <Node node={root} />
+                        </ul>
+                    </div>
+                </div>
             </div>
             {caption && <figcaption style={{ fontSize: '0.88rem', color: '#6B5357', marginTop: '6px' }}>{caption}</figcaption>}
         </figure>

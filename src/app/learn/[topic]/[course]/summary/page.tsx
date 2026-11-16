@@ -6,7 +6,7 @@ import PrintButtons from '@/components/PrintButtons'
 import SheetFit from '@/components/SheetFit'
 import { KINDS } from '@/components/SentenceParts'
 import { SITE_URL } from '@/lib/site'
-import { TOPICS, courseSlug, findLesson, lessonPath, type Part, type PartKind } from '@/content/lessons'
+import { TOPICS, courseSlug, findLesson, lessonPath, type Part, type PartKind, type SummarySection } from '@/content/lessons'
 
 const PRIMARY = '#7a1f2b'
 const INK = '#1a1214'
@@ -64,10 +64,82 @@ function Piece({ part, size }: { part: Part; size: string }) {
 }
 
 function Sentence({ parts, size = '1.02rem' }: { parts: Part[]; size?: string }) {
+    // علامة الترقيم تلزق بالكلمة اللي قبلها عشان ما تنزل لحالها في سطر
+    const groups: Part[][] = []
+    parts.forEach((p) => {
+        if (p[1] === 'p' && groups.length) groups[groups.length - 1].push(p)
+        else groups.push([p])
+    })
     return (
         <span dir="ltr" style={{ display: 'inline-flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: '0 6px' }}>
-            {parts.map((p, i) => <Piece key={i} part={p} size={size} />)}
+            {groups.map((g, i) => (
+                <span key={i} style={{ display: 'inline-flex', whiteSpace: 'nowrap' }}>
+                    {g.map((p, j) => <Piece key={j} part={p} size={size} />)}
+                </span>
+            ))}
         </span>
+    )
+}
+
+type Mistake = { wrong: string; right: string; why: string }
+
+function MistakeCard({ m }: { m: Mistake }) {
+    return (
+        <div style={{ border: `1px solid ${LINE}`, borderRadius: '8px', padding: '3px 9px 4px' }}>
+            <div dir="ltr" style={{ display: 'flex', gap: '6px', alignItems: 'baseline', fontSize: '0.86rem' }}>
+                <b style={{ color: '#B42318', width: '1em' }}>✗</b>
+                <span style={{ color: '#7a1a12', textDecoration: 'line-through', textDecorationThickness: '1.5px' }}>{m.wrong}</span>
+            </div>
+            <div dir="ltr" style={{ display: 'flex', gap: '6px', alignItems: 'baseline', fontSize: '0.86rem' }}>
+                <b style={{ color: '#1E7A4A', width: '1em' }}>✓</b>
+                <span style={{ color: INK, fontWeight: 800, textDecoration: 'underline', textUnderlineOffset: '3px', textDecorationColor: '#1E7A4A' }}>{m.right}</span>
+            </div>
+            <div dir="rtl" style={{ fontSize: '0.75rem', color: MUTED, lineHeight: 1.45 }}>{m.why}</div>
+        </div>
+    )
+}
+
+/** صف قسم: اسم الفرع لحاله على جنب (نفس لون فرعه في الدرس)، وقسمه جنبه بالعرض */
+function SectionBand({ sec }: { sec: SummarySection }) {
+    const color = KINDS[sec.kind].color
+    return (
+        <section style={{ display: 'grid', gridTemplateColumns: '112px 1fr', gap: '12px', alignItems: 'start', border: `1px solid ${LINE}`, borderInlineStart: `5px solid ${color}`, borderRadius: '10px', padding: '8px 10px' }}>
+            <div style={{ paddingTop: '4px' }}>
+                <div style={{ textAlign: 'center', border: `2px solid ${color}`, color, borderRadius: '18px', padding: '8px 4px 9px', background: '#fff' }}>
+                    <span dir="ltr" style={{ display: 'block', fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 700, fontSize: '1.15rem' }}>{sec.label}</span>
+                    <span style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700 }}>{sec.ar}</span>
+                </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                    <div style={{ flex: 1, minWidth: '150px', fontSize: '0.85rem', fontWeight: 700 }}>{sec.what}</div>
+                    {sec.formula && (
+                        <div dir="ltr" style={{ display: 'flex', alignItems: 'flex-end', flexWrap: 'wrap', gap: '8px', border: `1px solid ${LINE}`, borderRadius: '8px', padding: '2px 10px 4px' }}>
+                            {sec.formula.map((p, j) => (
+                                <span key={j} style={{ display: 'inline-flex', alignItems: 'flex-end', gap: '8px' }}>
+                                    {j > 0 && <span style={{ color: MUTED, fontSize: '1.1rem', paddingBottom: '2px' }}>→</span>}
+                                    <Piece part={p} size="0.95rem" />
+                                </span>
+                            ))}
+                        </div>
+                    )}
+                </div>
+                <div>
+                    {sec.examples.map((ex, i) => (
+                        // الجملة على جنب وملاحظتها العربية جنبها (توفر ارتفاع الورقة)
+                        <div key={i} dir="ltr" style={{ borderTop: `1px dashed ${LINE}`, padding: '2px 0 1px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                            <Sentence parts={ex.parts} size="0.94rem" />
+                            <div dir="rtl" style={{ flex: 1, minWidth: '140px', fontSize: '0.74rem', color: MUTED, lineHeight: 1.45 }}>{ex.ar}</div>
+                        </div>
+                    ))}
+                </div>
+                {sec.mistakes.length > 0 && (
+                    <div dir="ltr" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '5px 7px' }}>
+                        {sec.mistakes.map((m, i) => <MistakeCard key={i} m={m} />)}
+                    </div>
+                )}
+            </div>
+        </section>
     )
 }
 
@@ -127,7 +199,9 @@ export default async function SummaryPage({ params }: { params: Promise<Params> 
                     <p style={{ margin: 0, background: '#FBEFF1', border: `1px solid ${LINE}`, borderInlineStart: `5px solid ${PRIMARY}`, borderRadius: '8px', padding: '6px 12px', fontSize: '0.95rem', lineHeight: 1.7, fontWeight: 600 }}>{s.rule}</p>
                 </section>
 
-                {s.formulas && (
+                {s.sections?.map((sec, i) => <SectionBand key={i} sec={sec} />)}
+
+                {!s.sections && s.formulas && (
                     <section>
                         <h2>الصيغة</h2>
                         <div dir="ltr" style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 8px' }}>
@@ -145,6 +219,29 @@ export default async function SummaryPage({ params }: { params: Promise<Params> 
                     </section>
                 )}
 
+                {/* مع الأقسام: اللي ما يخص قسم واحد ينزل هنا بعنوانه (بدون كلمة "مشترك") */}
+                {s.sections ? (
+                    (s.examples.length > 0 || s.mistakes.length > 0) && (
+                        <section>
+                            <h2>{s.generalTitle ?? 'ملاحظات'}</h2>
+                            {s.generalNote && <div style={{ fontSize: '0.88rem', fontWeight: 700, lineHeight: 1.7, marginBottom: '4px' }}>{s.generalNote}</div>}
+                            <div style={{ display: 'grid', gridTemplateColumns: s.mistakes.length > 0 && s.examples.length > 0 ? 'repeat(2, minmax(0, 1fr))' : '1fr', gap: '0 12px', alignItems: 'start' }}>
+                                <div>
+                                    {s.examples.map((ex, i) => (
+                                        <div key={i} style={{ borderTop: i ? `1px dashed ${LINE}` : 'none', padding: '3px 0 2px' }}>
+                                            <div dir="ltr"><Sentence parts={ex.parts} size="0.98rem" /></div>
+                                            <div dir="rtl" style={{ fontSize: '0.76rem', color: MUTED, lineHeight: 1.5 }}>{ex.ar}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div dir="ltr" style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                    {s.mistakes.map((m, i) => <MistakeCard key={i} m={m} />)}
+                                </div>
+                            </div>
+                        </section>
+                    )
+                ) : (
+                <>
                 <section>
                     <h2>أمثلة</h2>
                     <div dir="ltr" className="examples" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0 14px' }}>
@@ -181,12 +278,29 @@ export default async function SummaryPage({ params }: { params: Promise<Params> 
                         ))}
                     </div>
                 </section>
+                </>
+                )}
 
                 {s.tables && (
                     <div className="tables" style={{ display: 'grid', gridTemplateColumns: s.tables.length > 1 ? 'repeat(2, minmax(0, 1fr))' : '1fr', gap: '0 12px' }}>
                         {s.tables.map((t, ti) => (
                             <section key={ti}>
                                 <h2>{t.title}</h2>
+                                {t.across ? (
+                                    // بالعرض: كل عنوان من head صف، وكل صف بيانات عمود
+                                    <table dir="ltr">
+                                        <tbody>
+                                            {t.head.map((h, hi) => (
+                                                <tr key={hi}>
+                                                    <td style={{ fontWeight: 800, textAlign: 'left', background: '#F3DDE0', width: '86px', fontSize: '0.74rem' }}>{h}</td>
+                                                    {t.rows.map((row, r) => (
+                                                        <td key={r} style={{ textAlign: 'center', fontWeight: hi === 0 ? 800 : 400, background: hi % 2 ? '#FBF6F6' : '#fff' }}>{row[hi]}</td>
+                                                    ))}
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                ) : (
                                 <table dir="ltr">
                                     <thead>
                                         <tr>{t.head.map((h, i) => <th key={i}>{h}</th>)}</tr>
@@ -201,6 +315,7 @@ export default async function SummaryPage({ params }: { params: Promise<Params> 
                                         ))}
                                     </tbody>
                                 </table>
+                                )}
                             </section>
                         ))}
                     </div>

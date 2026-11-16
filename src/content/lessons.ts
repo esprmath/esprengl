@@ -25,7 +25,7 @@ type BlockBody =
     | { type: 'heading'; text: string }                                  // عنوان قسم داخل الدرس
     | { type: 'text'; text: string }                                     // فقرة شرح
     | { type: 'rule'; text: string }                                     // قاعدة أو صيغة مهمة (إنجليزي)
-    | { type: 'example'; en: string; ar?: string }                       // مثال إنجليزي مع شرح اختياري
+    | { type: 'example'; en: string; ar?: string; mean?: string }        // مثال إنجليزي مع شرح اختياري. mean: معنى الجملة بالعربي (للي يبدأ من الصفر)
     | { type: 'list'; items: string[]; lang?: 'en' | 'ar'; ordered?: boolean } // نقاط، إنجليزي افتراضيًا
     // جدول إنجليزي. على الجوال يتحول لبطاقات تحت بعض: stackBy 'column' بطاقة لكل عمود (مثل أنواع أدوات الربط)، و'row' (الافتراضي) بطاقة لكل صف
     | { type: 'table'; head: string[]; rows: string[][]; stackBy?: 'row' | 'column' }
@@ -36,7 +36,10 @@ type BlockBody =
     // مستطيل "اكتب وبصححها لك" بالذكاء. يتحط بعد المثال اللي يناسبه (قسم الأمثلة)، ومقفل للي حسابه مو معتمد
     | { type: 'try'; task: string; reference?: string; placeholder?: string }
     | { type: 'formula'; parts: Part[] }                                 // القاعدة كقطع ملونة بينها أسهم
-    | { type: 'breakdown'; parts: Part[]; ar?: string }                  // جملة مقطعة، وفوق كل جزء وش هو
+    | { type: 'breakdown'; parts: Part[]; ar?: string; mean?: string }   // جملة مقطعة، وفوق كل جزء وش هو. mean: معنى الجملة بالعربي، سطر صغير رمادي
+    // "ثبّت المعلومة": الطالب يجيب ورقة ويكتب السطور اللي نحددها له (القاعدة نفسها، قصيرة). عند المفهوم المهم بس،
+    // وما تزيد عن 2 في الدرس، وبدون نقاط وبدون كتابة في الموقع
+    | { type: 'anchor'; lines: string[] }
     // سؤال سريع وسط الشرح: يجاوبه الطالب وهو يقرأ ويشوف الصح مباشرة. نفس شكل أسئلة التمرين
     | { type: 'check'; choices?: string[]; items: { q: string; a: string; why?: string; choices?: string[] }[] }
     // خريطة صغيرة: صفوف مربعات. المربع الفاضي '' فراغ، واللي يبدأ بـ ~ شارع (اسمه بعد ~). تبقى نفس الشكل على الجوال
@@ -52,6 +55,9 @@ type BlockBody =
     // ورقة طالب فيها أخطاء: كل جملة غلط وتحتها قوس باسم خطئها، وأزرار الأخطاء جنب بعض.
     // يختار خطأ فيفتح تحته شرحه وسؤاله، وبعد ما يجاوب أسئلتهم كلها تنفتح الورقة المصححة (fixed)
     | { type: 'errors'; title: string; items: ErrorItem[]; fixed: string }
+    // افتتاحية الدرس كخريطة: كلمة كبيرة (word) تتفرع منها أقسام (branches). الأول مفتوح، وكل فرع فيه شرحه
+    // وزر في آخره ينقل للي بعده، وآخر فرع زره ينزّل لباقي الدرس
+    | { type: 'hub'; word: string; ar?: string; branches: HubBranch[] }
     // بطاقة تصحيح تفاعلية (للأمثلة): جملة غلط، يختار الصح من خيارات، ويطلع له سبب الخطأ والجملة الصحيحة ملونة
     | { type: 'fix'; label: string; kind: PartKind; wrong: string; mark?: string; options: string[]; answer: string; why: string; parts?: Part[] };
 
@@ -64,6 +70,14 @@ export interface ErrorItem {
     kind: PartKind;
     line: string;
     mark?: string;
+    blocks: Block[];
+}
+
+/** فرع من خريطة الدرس (hub): اسمه بالإنجليزي، وبالعربي، ولونه، وشرحه */
+export interface HubBranch {
+    label: string;
+    ar: string;
+    kind: PartKind;
     blocks: Block[];
 }
 
@@ -109,8 +123,29 @@ export interface LessonSummary {
     examples: { parts: Part[]; ar: string }[];
     /** انتبه: الغلط والصح وسببه */
     mistakes: { wrong: string; right: string; why: string }[];
-    /** جداول كلمات أو أشكال (اختياري، يفضّل 2 كحد أقصى عشان تتسع الصفحة) */
-    tables?: { title: string; head: string[]; rows: string[][] }[];
+    /** جداول كلمات أو أشكال (اختياري، يفضّل 2 كحد أقصى عشان تتسع الصفحة). across: الجدول ينعرض بالعرض (كل عمود من head صف) */
+    tables?: { title: string; head: string[]; rows: string[][]; across?: boolean }[];
+    /**
+     * للدرس اللي له فروع (hub): كل قسم صف، اسمه لحاله على جنب وقسمه جنبه بالعرض.
+     * مع sections: formulas ما تطلع، و examples و mistakes و tables تنزل تحت الأقسام وتحمل اللي ما يخص قسم واحد (بدون كلمة "مشترك").
+     */
+    sections?: SummarySection[];
+    /** عنوان الجزء اللي تحت الأقسام */
+    generalTitle?: string;
+    /** سطر قبل الأمثلة اللي تحت الأقسام (اختياري) */
+    generalNote?: string;
+}
+
+/** قسم في ملخص الدرس: اسمه (يطابق فرع الخريطة)، وصيغته، وأمثلته، وأخطاؤه */
+export interface SummarySection {
+    label: string;
+    ar: string;
+    kind: PartKind;
+    /** سطر يقول وش القسم */
+    what: string;
+    formula?: Part[];
+    examples: { parts: Part[]; ar: string }[];
+    mistakes: { wrong: string; right: string; why: string }[];
 }
 
 export interface Warmup {
@@ -449,38 +484,53 @@ export const TOPICS: Topic[] = [
                 noExamples: true, // الأمثلة داخل الشرح: شرح ← مثال ← سؤال
                 summary: {
                     rule: 'الكلمة تعرفها من جارها، لا تحكم عليها لحالها. الاسم يجي بعد a / the / my / رقم. والفعل يجي بعد الفاعل (I / he / they / اسم شخص). والجمع في الغالب + s.',
-                    formulas: [
-                        [['a / an / the / my / his / two', 'x', 'clue'], ['Noun', 'n', 'noun']],
-                        [['I / he / they / Fahad', 'x', 'clue'], ['Verb', 'v', 'verb']],
-                        [['cow', 'n', 'singular'], ['cows', 'n', 'plural (+ s)']],
-                    ],
-                    examples: [
-                        { parts: [['My', 'x', 'clue'], ['grandfather', 'n', 'noun'], ['has', 'v', 'verb'], ['a', 'x', 'clue'], ['farm', 'n', 'noun'], ['.', 'p']], ar: 'بعد My و a جاء اسم. وبعد الفاعل grandfather جاء الفعل has.' },
-                        { parts: [['I', 'x', 'clue'], ['work', 'v', 'verb'], ['on the farm.']], ar: 'بعد I، فـ work فعل (حركة).' },
-                        { parts: [['I love'], ['my', 'x', 'clue'], ['work', 'n', 'noun'], ['.', 'p']], ar: 'نفس الكلمة بعد my، فهي اسم.' },
-                        { parts: [['The', 'x', 'clue'], ['weather', 'n', 'noun'], ['is', 'v', 'verb'], ['cold.']], ar: 'weather اسم حتى لو ما تنلمس. is فعل حالة، و cold صفة.' },
-                        { parts: [['Two', 'x', 'clue'], ['men', 'n', 'noun'], ['grow', 'v', 'verb'], ['dates.']], ar: 'man جمعها men (شاذة)، وبعد الاسم الجمع جاء فعل بدون s.' },
-                        { parts: [['He', 'x', 'clue'], ['is', 'v', 'verb'], ['a', 'x', 'clue'], ['pilot', 'n', 'noun'], ['.', 'p']], ar: 'is فعل حتى لو ما فيه حركة.' },
-                    ],
-                    mistakes: [
-                        { wrong: 'Three mans work on the farm.', right: 'Three men work on the farm.', why: 'man و woman و person و child جمعهم شاذ (childs ✗ ← children ✓).' },
-                        { wrong: 'Yanbu and Jeddah are two citys.', right: 'Yanbu and Jeddah are two cities.', why: 'حرف ساكن + y ← ies.' },
-                        { wrong: 'He has three sheeps.', right: 'He has three sheep.', why: 'sheep و fish جمعها نفسها.' },
-                        { wrong: 'In "Omar is a pilot" the verb is pilot.', right: 'In "Omar is a pilot" the verb is is.', why: 'is فعل حالة وكثير ينسونه. pilot اسم.' },
-                    ],
-                    tables: [
+                    sections: [
                         {
-                            title: 'أنواع الكلمات',
-                            head: ['النوع', 'وش هو', 'أمثلة'],
-                            rows: [
-                                ['Noun', 'شخص أو شي أو مكان، حتى لو ما تنلمس', 'uncle, farm, Yanbu, weather, music'],
-                                ['Verb (action)', 'حركة', 'work, grow, play, study'],
-                                ['Verb (state)', 'حالة', 'is / am / are, have, like'],
-                                ['Adjective', 'توصف الاسم، مو اسم ولا فعل', 'cold, nice, quiet, kind'],
+                            label: 'Nouns',
+                            ar: 'الأسماء',
+                            kind: 'n',
+                            what: 'شخص أو شي أو مكان، حتى لو ما تنلمس. تعرفه من جاره.',
+                            formula: [['a / an / the / my / his / two', 'x', 'clue'], ['Noun', 'n', 'noun']],
+                            examples: [
+                                { parts: [['My', 'x', 'clue'], ['grandfather', 'n', 'noun'], ['has', 'v', 'verb'], ['a', 'x', 'clue'], ['farm', 'n', 'noun'], ['.', 'p']], ar: 'بعد My و a جاء اسم. وبعد الاسم grandfather جاء الفعل has.' },
+                                { parts: [['The', 'x', 'clue'], ['weather', 'n', 'noun'], ['is', 'v', 'verb'], ['cold.']], ar: 'weather اسم حتى لو ما تنلمس. is فعل حالة، و cold صفة.' },
+                            ],
+                            mistakes: [
+                                { wrong: 'Three mans work on the farm.', right: 'Three men work on the farm.', why: 'man و woman و person و child جمعهم شاذ.' },
+                                { wrong: 'Yanbu and Jeddah are two citys.', right: 'Yanbu and Jeddah are two cities.', why: 'حرف ساكن + y ← ies.' },
                             ],
                         },
                         {
+                            label: 'Verbs',
+                            ar: 'الأفعال',
+                            kind: 'v',
+                            what: 'حركة (work, grow) أو حالة (is, have). وجاره اللي قبله هو الفاعل.',
+                            formula: [['I / he / they / Fahad', 'x', 'clue'], ['Verb', 'v', 'verb']],
+                            examples: [
+                                { parts: [['I', 'x', 'clue'], ['work', 'v', 'verb'], ['on the farm.']], ar: 'بعد I، فـ work فعل (حركة).' },
+                                { parts: [['He', 'x', 'clue'], ['is', 'v', 'verb'], ['a', 'x', 'clue'], ['pilot', 'n', 'noun'], ['.', 'p']], ar: 'is فعل حتى لو ما فيه حركة.' },
+                            ],
+                            mistakes: [
+                                { wrong: 'In "Omar is a pilot" the verb is pilot.', right: 'In "Omar is a pilot" the verb is is.', why: 'is فعل حالة وكثير ينسونه. pilot اسم.' },
+                            ],
+                        },
+                        {
+                            label: 'Both',
+                            ar: 'أسماء وأفعال',
+                            kind: 'p',
+                            what: 'كلمات مثل work و call و plan تجي اسم مرة وفعل مرة. جارها يحكم.',
+                            examples: [
+                                { parts: [['I', 'x', 'clue'], ['work', 'v', 'verb'], ['on the farm. I love'], ['my', 'x', 'clue'], ['work', 'n', 'noun'], ['.', 'p']], ar: 'نفس الكلمة: بعد I فعل، وبعد my اسم.' },
+                            ],
+                            mistakes: [],
+                        },
+                    ],
+                    examples: [],
+                    mistakes: [],
+                    tables: [
+                        {
                             title: 'الجمع',
+                            across: true,
                             head: ['One', 'Two +', 'القاعدة'],
                             rows: [
                                 ['cow', 'cows', '+ s'],
@@ -502,104 +552,117 @@ export const TOPICS: Topic[] = [
                 },
                 blocks: [
                     { type: 'names' },
-                    { type: 'text', text: 'كل كلمة في الإنجليزي لها نوع، وأهم نوعين الاسم (noun) والفعل (verb). والسر في هالدرس: لا تحكم على الكلمة لحالها، شوف جارها اللي قبلها. الجار بالأحمر في كل الأمثلة.' },
+                    { type: 'text', text: 'كل كلمة في الإنجليزي لها نوع. اختر النوع اللي تبدأ فيه، وأهم نوعين الأسماء والأفعال.' },
 
-                    // ── 1) الاسم ──
-                    { type: 'heading', text: 'الاسم (noun): شخص أو شي أو مكان' },
-                    { type: 'label', icon: '📘', text: 'الشرح' },
-                    { type: 'text', text: 'شخص (grandfather)، أو شي (phone)، أو مكان (farm). وفيه أسماء ما تنلمس، ومع كذا هي أسماء: weather و music و English و family.' },
-                    { type: 'label', icon: '👀', text: 'مثال' },
-                    { type: 'breakdown', parts: [['My', 'x', 'Clue →'], ['grandfather', 'n', 'Noun: person'], ['has'], ['a', 'x', 'Clue →'], ['farm', 'n', 'Noun: place'], ['in AlUla', 'n', 'Noun: place'], ['.', 'p']], ar: 'my و a جيران يدلون إن اللي بعدهم اسم.' },
-                    { type: 'breakdown', parts: [['The', 'x', 'Clue →'], ['weather', 'n'], ['in AlUla'], ['is', 'v'], ['cold'], ['in winter'], ['.', 'p']], ar: 'weather اسم حتى لو ما تنلمس، و cold صفة.' },
-                    { type: 'label', icon: '❓', text: 'سؤال' },
-                    { type: 'check', items: [{ q: 'My grandfather has a farm. Which word comes after a?', choices: ['has', 'My', 'farm'], a: 'farm', why: 'بعد a يجي اسم، و farm مكان.' }] },
-
-                    // ── 2) الفعل ──
-                    { type: 'heading', text: 'الفعل (verb): وش يسوي أو وش هو' },
-                    { type: 'label', icon: '📘', text: 'الشرح' },
-                    { type: 'text', text: 'الفعل حركة (work، grow، play) أو حالة (is، have، like). وانتبه: is و am و are أفعال.' },
-                    { type: 'label', icon: '👀', text: 'مثال' },
-                    { type: 'breakdown', parts: [['He', 'x', 'Clue →'], ['grows', 'v', 'Verb: action'], ['dates', 'n'], ['and'], ['he', 'x', 'Clue →'], ['is', 'v', 'Verb: state'], ['very busy'], ['.', 'p']], ar: 'بعد الفاعل (He) يجي فعل.' },
-                    { type: 'label', icon: '❓', text: 'سؤال' },
+                    // ── الكلمات: تتفرع لأسماء وأفعال، والجار داخل شرح كل فرع ──
                     {
-                        type: 'check',
-                        items: [
-                            { q: 'The weather is cold. What is the verb?', choices: ['weather', 'cold', 'is'], a: 'is', why: 'is فعل حالة، و weather اسم، و cold صفة.' },
-                            { q: 'Saad is a student. What is the verb?', choices: ['is', 'Saad', 'student'], a: 'is', why: 'is فعل حالة، و student اسم.' },
+                        type: 'hub',
+                        word: 'Words',
+                        ar: 'الكلمات',
+                        branches: [
+                            {
+                                label: 'Nouns',
+                                ar: 'الأسماء',
+                                kind: 'n',
+                                blocks: [
+                                    { type: 'label', text: 'الشرح' },
+                                    { type: 'text', text: 'الاسم (noun) يسمّي شخص (grandfather)، أو شي (phone)، أو مكان (farm). وفيه أسماء ما تنلمس، ومع كذا هي أسماء: weather و music و English و family.' },
+                                    { type: 'text', text: 'والسر: لا تحكم على الكلمة لحالها، شوف جارها اللي قبلها. الاسم له جيران يعرفونه، وهم بالأحمر في كل الأمثلة.' },
+                                    { type: 'formula', parts: [['a / an / the / my / his / two', 'x', 'Clue'], ['Noun', 'n']] },
+                                    {
+                                        type: 'steps',
+                                        items: [
+                                            { kind: 'n', title: 'قبلها a أو an أو the ← اسم', en: 'a farm · the weather' },
+                                            { kind: 'n', title: 'قبلها my أو his أو her ← اسم', en: 'my work · his sister' },
+                                            { kind: 'n', title: 'قبلها رقم ← اسم', en: 'two cows · three languages' },
+                                        ],
+                                    },
+                                    { type: 'label', text: 'مثال' },
+                                    { type: 'breakdown', parts: [['My', 'x', 'Clue →'], ['grandfather', 'n', 'Noun: person'], ['has'], ['a', 'x', 'Clue →'], ['farm', 'n', 'Noun: place'], ['in AlUla', 'n', 'Noun: place'], ['.', 'p']], mean: 'جدي عنده مزرعة في العلا.', ar: 'my و a جيران يدلون إن اللي بعدهم اسم.' },
+                                    { type: 'breakdown', parts: [['The', 'x', 'Clue →'], ['weather', 'n'], ['in AlUla'], ['is', 'v'], ['cold'], ['in winter'], ['.', 'p']], mean: 'الجو في العلا بارد في الشتا.', ar: 'weather اسم حتى لو ما تنلمس، و cold صفة.' },
+                                    { type: 'label', text: 'سؤال' },
+                                    { type: 'check', items: [{ q: 'My grandfather has a farm. Which word comes after a?', choices: ['has', 'My', 'farm'], a: 'farm', why: 'بعد a يجي اسم، و farm مكان.' }] },
+                                    { type: 'anchor', lines: ['الكلمات نوعين: أسماء (nouns) وأفعال (verbs).', 'قبل الاسم يجي: a / an / the / my / his / رقم.'] },
+
+                                    { type: 'label', text: 'المفرد والجمع: نعد في مزرعة الجد' },
+                                    { type: 'text', text: 'المفرد (singular) واحد، والجمع (plural) اثنين وفوق. أغلب الأسماء نجمعها بـ s.' },
+                                    { type: 'breakdown', parts: [['one'], ['cow', 'n', 'Singular'], ['→'], ['two'], ['cow', 'n'], ['s', 'x', '+ s']], mean: 'بقرة وحدة ← بقرتين.' },
+                                    { type: 'text', text: 'إملاء: اللي تنتهي بـ ch أو sh أو s أو x تاخذ es، واللي تنتهي بحرف ساكن + y تصير ies.' },
+                                    { type: 'breakdown', parts: [['one'], ['box', 'n'], ['→'], ['three'], ['box', 'n'], ['es', 'x', 'x → es'], ['|'], ['one'], ['famil', 'n'], ['y', 'x', 'y → i'], ['→'], ['two'], ['famil', 'n'], ['ies', 'x', 'y → ies']], mean: 'box = صندوق، و family = عائلة.' },
+                                    { type: 'text', text: 'وأربع كلمات شاذة ما تاخذ s، تنحفظ: man ← men، woman ← women، person ← people، child ← children.' },
+                                    { type: 'breakdown', parts: [['one'], ['man', 'n'], ['→'], ['two'], ['men', 'x', 'Irregular']], mean: 'رجل واحد ← رجلين.' },
+                                    { type: 'label', text: 'مثال' },
+                                    { type: 'breakdown', parts: [['Grandfather Saleh'], ['has', 'v'], ['two', 'x', 'Clue →'], ['camels', 'n', 'Plural'], ['and'], ['three', 'x', 'Clue →'], ['sheep', 'n', 'Plural'], ['.', 'p']], mean: 'الجد صالح عنده جملين وثلاث خرفان.', ar: 'sheep جمعها نفسها، مثل fish.' },
+                                    { type: 'breakdown', parts: [['My uncle'], ['has', 'v'], ['two', 'x', 'Clue →'], ['children', 'n', 'Irregular plural'], ['.', 'p']], mean: 'عمي عنده طفلين.' },
+                                    { type: 'label', text: 'سؤال' },
+                                    { type: 'check', items: [{ q: 'Three ___ work on the farm.', choices: ['mans', 'man', 'men'], a: 'men', why: 'man جمعه شاذ: men.' }] },
+                                    {
+                                        type: 'fix',
+                                        label: 'جمع غلط',
+                                        kind: 'x',
+                                        wrong: 'My grandfather has three sheeps.',
+                                        mark: 'sheeps',
+                                        options: ['My grandfather has three sheepes.', 'My grandfather has three sheep.', 'My grandfather has three of sheep.'],
+                                        answer: 'My grandfather has three sheep.',
+                                        parts: [['My grandfather'], ['has', 'v'], ['three', 'x', 'Clue →'], ['sheep', 'n', 'Plural'], ['.', 'p']],
+                                        why: 'sheep جمعها نفسها (مثل fish)، ما ناخذ s.',
+                                    },
+                                    {
+                                        type: 'fix',
+                                        label: 'جمع غلط (y ← ies)',
+                                        kind: 'x',
+                                        wrong: 'My aunt has two babys.',
+                                        mark: 'babys',
+                                        options: ['My aunt has two babyes.', 'My aunt has two babies.', 'My aunt has two baby.'],
+                                        answer: 'My aunt has two babies.',
+                                        parts: [['My aunt'], ['has', 'v'], ['two', 'x', 'Clue →'], ['babies', 'n', 'y → ies'], ['.', 'p']],
+                                        why: 'baby تنتهي بحرف ساكن + y، فتصير ies.',
+                                    },
+                                ],
+                            },
+                            {
+                                label: 'Verbs',
+                                ar: 'الأفعال',
+                                kind: 'v',
+                                blocks: [
+                                    { type: 'label', text: 'الشرح' },
+                                    { type: 'text', text: 'الفعل (verb) يقول وش يسوي الشخص أو وش هو: حركة (work، grow، play) أو حالة (is، have، like). وانتبه: is و am و are أفعال.' },
+                                    { type: 'text', text: 'والسر نفسه: شوف جار الكلمة. جار الفعل اللي قبله هو الفاعل (من يسوي؟).' },
+                                    { type: 'formula', parts: [['I / he / they / {name}', 'x', 'Clue'], ['Verb', 'v']] },
+                                    { type: 'steps', items: [{ kind: 'v', title: 'قبلها الفاعل ← فعل', ar: 'I، he، they، أو اسم شخص.', en: 'He grows · {name} studies' }] },
+                                    { type: 'label', text: 'مثال' },
+                                    { type: 'breakdown', parts: [['He', 'x', 'Clue →'], ['grows', 'v', 'Verb: action'], ['dates', 'n'], ['and'], ['he', 'x', 'Clue →'], ['is', 'v', 'Verb: state'], ['very busy'], ['.', 'p']], mean: 'يزرع تمر، وهو مشغول جدًا.', ar: 'بعد الفاعل (He) يجي فعل.' },
+                                    { type: 'breakdown', parts: [['{His}', 'x', 'Clue →'], ['mother', 'n'], ['teaches', 'v'], ['at'], ['a', 'x', 'Clue →'], ['school', 'n'], ['.', 'p']], mean: 'الأم تدرّس في مدرسة.', ar: 'بعد {His} اسم (mother)، وبعد الاسم الفاعل جاء الفعل teaches. وبعد a اسم (school).' },
+                                    { type: 'label', text: 'سؤال' },
+                                    {
+                                        type: 'check',
+                                        items: [
+                                            { q: 'The weather is cold. What is the verb?', choices: ['weather', 'cold', 'is'], a: 'is', why: 'is فعل حالة، و weather اسم، و cold صفة.' },
+                                            { q: 'Saad is a student. What is the verb?', choices: ['is', 'Saad', 'student'], a: 'is', why: 'is فعل حالة، و student اسم.' },
+                                            { q: 'Reem plays tennis. Which word is the verb?', choices: ['tennis', 'plays', 'Reem'], a: 'plays', why: 'بعد الفاعل Reem جاء الفعل.' },
+                                        ],
+                                    },
+                                    { type: 'anchor', lines: ['قبل الفعل يجي الفاعل: I / he / they / اسم شخص.', 'أفعال حتى لو ما فيها حركة: is / am / are.'] },
+                                ],
+                            },
+                            {
+                                label: 'Both',
+                                ar: 'أسماء وأفعال',
+                                kind: 'p',
+                                blocks: [
+                                    { type: 'label', text: 'الشرح' },
+                                    { type: 'text', text: 'كلمات مثل work و call و plan و answer تجي اسم مرة وفعل مرة. جارها هو اللي يحكم.' },
+                                    { type: 'label', text: 'مثال' },
+                                    { type: 'breakdown', parts: [['I', 'x', 'Clue →'], ['work', 'v', 'Verb'], ['on the farm.'], ['I love'], ['my', 'x', 'Clue →'], ['work', 'n', 'Noun'], ['.', 'p']], mean: 'أشتغل في المزرعة. أحب شغلي.' },
+                                    { type: 'breakdown', parts: [['They', 'x', 'Clue →'], ['answer', 'v', 'Verb'], ['the questions.'], ['The', 'x', 'Clue →'], ['answer', 'n', 'Noun'], ['is easy'], ['.', 'p']], mean: 'يجاوبون على الأسئلة. الجواب سهل.', ar: 'answer مرة فعل ومرة اسم.' },
+                                    { type: 'label', text: 'سؤال' },
+                                    { type: 'check', items: [{ q: 'The phone call was short. The word call is a:', choices: ['Verb', 'Noun', 'Adjective'], a: 'Noun', why: 'قبلها phone وقبلها The، فهي اسم.' }] },
+                                ],
+                            },
                         ],
                     },
 
-                    // ── 3) القاعدة ──
-                    { type: 'heading', text: 'القاعدة: مين جار الكلمة؟' },
-                    { type: 'label', icon: '📘', text: 'الشرح' },
-                    { type: 'formula', parts: [['a / an / the / my / his / two', 'x', 'Clue'], ['Noun', 'n']] },
-                    { type: 'formula', parts: [['I / he / they / {name}', 'x', 'Clue'], ['Verb', 'v']] },
-                    {
-                        type: 'steps',
-                        items: [
-                            { kind: 'n', title: 'قبلها a أو an أو the ← اسم', en: 'a farm · the weather' },
-                            { kind: 'n', title: 'قبلها my أو his أو her ← اسم', en: 'my work · his sister' },
-                            { kind: 'n', title: 'قبلها رقم ← اسم', en: 'two cows · three languages' },
-                            { kind: 'v', title: 'قبلها الفاعل ← فعل', ar: 'I، he، they، أو اسم شخص.', en: 'He grows · {name} studies' },
-                        ],
-                    },
-                    { type: 'label', icon: '👀', text: 'مثال' },
-                    { type: 'breakdown', parts: [['{name}', 'x', 'Clue →'], ['studies', 'v'], ['English'], ['at'], ['the', 'x', 'Clue →'], ['institute', 'n'], ['.', 'p']], ar: 'بعد اسم الشخص (الفاعل) فعل، وبعد the اسم.' },
-                    { type: 'breakdown', parts: [['{His}', 'x', 'Clue →'], ['mother', 'n'], ['teaches', 'v'], ['at'], ['a', 'x', 'Clue →'], ['school', 'n'], ['.', 'p']], ar: 'بعد His اسم (mother)، وبعد الاسم الفاعل جاء الفعل teaches.' },
-                    { type: 'label', icon: '❓', text: 'سؤال' },
-                    { type: 'check', items: [{ q: 'Reem plays tennis. Which word is the verb?', choices: ['tennis', 'plays', 'Reem'], a: 'plays', why: 'بعد الفاعل Reem جاء الفعل.' }] },
-
-                    // ── 4) اسم وفعل ──
-                    { type: 'heading', text: 'نفس الكلمة اسم وفعل' },
-                    { type: 'label', icon: '📘', text: 'الشرح' },
-                    { type: 'text', text: 'كلمات مثل work و call و plan و answer تجي اسم مرة وفعل مرة. جارها هو اللي يحكم.' },
-                    { type: 'label', icon: '👀', text: 'مثال' },
-                    { type: 'breakdown', parts: [['I', 'x', 'Clue →'], ['work', 'v', 'Verb'], ['on the farm.'], ['I love'], ['my', 'x', 'Clue →'], ['work', 'n', 'Noun'], ['.', 'p']] },
-                    { type: 'breakdown', parts: [['They', 'x', 'Clue →'], ['answer', 'v', 'Verb'], ['the questions.'], ['The', 'x', 'Clue →'], ['answer', 'n', 'Noun'], ['is easy'], ['.', 'p']], ar: 'answer مرة فعل ومرة اسم.' },
-                    { type: 'label', icon: '❓', text: 'سؤال' },
-                    { type: 'check', items: [{ q: 'The phone call was short. The word call is a:', choices: ['Verb', 'Noun', 'Adjective'], a: 'Noun', why: 'قبلها phone وقبلها The، فهي اسم.' }] },
-
-                    // ── 5) المفرد والجمع ──
-                    { type: 'heading', text: 'المفرد والجمع: نعد في مزرعة الجد' },
-                    { type: 'label', icon: '📘', text: 'الشرح' },
-                    { type: 'text', text: 'المفرد (singular) واحد، والجمع (plural) اثنين وفوق. أغلب الأسماء نجمعها بـ s.' },
-                    { type: 'breakdown', parts: [['one'], ['cow', 'n', 'Singular'], ['→'], ['two'], ['cow', 'n'], ['s', 'x', '+ s']] },
-                    { type: 'text', text: 'إملاء: اللي تنتهي بـ ch أو sh أو s أو x تاخذ es، واللي تنتهي بحرف ساكن + y تصير ies.' },
-                    { type: 'breakdown', parts: [['one'], ['box', 'n'], ['→'], ['three'], ['box', 'n'], ['es', 'x', 'x → es'], ['|'], ['one'], ['famil', 'n'], ['y', 'x', 'y → i'], ['→'], ['two'], ['famil', 'n'], ['ies', 'x', 'y → ies']] },
-                    { type: 'text', text: 'وأربع كلمات شاذة ما تاخذ s، تنحفظ: man ← men، woman ← women، person ← people، child ← children.' },
-                    { type: 'breakdown', parts: [['one'], ['man', 'n'], ['→'], ['two'], ['men', 'x', 'Irregular']] },
-                    { type: 'label', icon: '👀', text: 'مثال' },
-                    { type: 'breakdown', parts: [['Grandfather Saleh'], ['has', 'v'], ['two', 'x', 'Clue →'], ['camels', 'n', 'Plural'], ['and'], ['three', 'x', 'Clue →'], ['sheep', 'n', 'Plural'], ['.', 'p']], ar: 'sheep جمعها نفسها، مثل fish.' },
-                    { type: 'breakdown', parts: [['My uncle'], ['has', 'v'], ['two', 'x', 'Clue →'], ['children', 'n', 'Irregular plural'], ['.', 'p']] },
-                    { type: 'label', icon: '❓', text: 'سؤال' },
-                    { type: 'check', items: [{ q: 'Three ___ work on the farm.', choices: ['mans', 'man', 'men'], a: 'men', why: 'man جمعه شاذ: men.' }] },
-                    {
-                        type: 'fix',
-                        label: 'جمع غلط',
-                        kind: 'x',
-                        wrong: 'My grandfather has three sheeps.',
-                        mark: 'sheeps',
-                        options: ['My grandfather has three sheepes.', 'My grandfather has three sheep.', 'My grandfather has three of sheep.'],
-                        answer: 'My grandfather has three sheep.',
-                        parts: [['My grandfather'], ['has', 'v'], ['three', 'x', 'Clue →'], ['sheep', 'n', 'Plural'], ['.', 'p']],
-                        why: 'sheep جمعها نفسها (مثل fish)، ما ناخذ s.',
-                    },
-                    {
-                        type: 'fix',
-                        label: 'جمع غلط (y ← ies)',
-                        kind: 'x',
-                        wrong: 'My aunt has two babys.',
-                        mark: 'babys',
-                        options: ['My aunt has two babyes.', 'My aunt has two babies.', 'My aunt has two baby.'],
-                        answer: 'My aunt has two babies.',
-                        parts: [['My aunt'], ['has', 'v'], ['two', 'x', 'Clue →'], ['babies', 'n', 'y → ies'], ['.', 'p']],
-                        why: 'baby تنتهي بحرف ساكن + y، فتصير ies.',
-                    },
-                    { type: 'note', text: 'الكلمة اللي لا اسم ولا فعل، مثل cold أو nice، غالبًا صفة (adjective). والاختبار يحطها خيار عشان يلخبطك.' },
-
-                    { type: 'label', icon: '✍️', text: 'جرب بنفسك' },
-                    { type: 'try', task: 'اكتب جملة عن واحد من عائلتك فيها فعل واسمين على الأقل.', reference: 'My father works in a bank in Yanbu.', placeholder: 'My father works …' },
-                    { type: 'try', task: 'اكتب جملة فيها كلمة plan مرتين: مرة فعل ومرة اسم.', reference: 'We plan our trip together. Our plan is to visit AlUla.', placeholder: 'We plan …' },
+                    { type: 'note', text: 'الكلمة اللي لا اسم ولا فعل، مثل cold أو nice، غالبًا صفة (adjective). انتبه لها، لأنها تجي بين الخيارات وتلخبط.' },
 
                     // ── التمارين ──
                     {
@@ -622,8 +685,8 @@ export const TOPICS: Topic[] = [
                     },
                     {
                         type: 'exercise',
-                        title: 'Exercise B: Exam style',
-                        instructions: 'نفس شكل أسئلة الكويز.',
+                        title: 'Exercise B: Mixed practice',
+                        instructions: 'أسئلة منوعة على الاسم والفعل.',
                         items: [
                             { q: 'In the sentence "Reem reads a book every night." what is the verb?', choices: ['Reem', 'book', 'night', 'reads'], a: 'reads' },
                             { q: 'In the sentence "The climate in Tabuk is cold." what is the noun?', choices: ['climate', 'is', 'cold', 'in'], a: 'climate', why: 'بعد The، وحتى لو ما تنلمس.' },
@@ -712,13 +775,38 @@ const normalize = (s: string) =>
         .replace(/ى/g, 'ي')
         .trim();
 
+/**
+ * أسماء أقسام الدرس اللي تطلع للطالب (فروع الخريطة hub، وأجزاء ورقة الأخطاء errors).
+ * ندخلها في البحث عشان "الضمير" أو "Possessive" أو "الوظائف" يطلع له الدرس اللي فيه هالقسم.
+ */
+const sectionCache = new WeakMap<Topic, string[]>();
+function sectionLabels(topic: Topic): string[] {
+    const hit = sectionCache.get(topic);
+    if (hit) return hit;
+    const out = new Set<string>();
+    for (const lesson of topic.lessons) {
+        for (const b of lesson.blocks) {
+            if (b.type === 'hub') {
+                out.add(b.word);
+                if (b.ar) out.add(b.ar);
+                b.branches.forEach((br) => { out.add(br.label); out.add(br.ar); });
+            } else if (b.type === 'errors') {
+                b.items.forEach((it) => { out.add(it.label); out.add(it.short); });
+            }
+        }
+    }
+    const list = [...out];
+    sectionCache.set(topic, list);
+    return list;
+}
+
 /** يرجع العناوين اللي تطابق البحث، وكل عنوان معه كل دروسه في المواد */
 export function searchTopics(query: string): Topic[] {
     const words = normalize(query).split(/\s+/).filter(Boolean);
     if (words.length === 0) return TOPICS;
     return TOPICS.filter((t) => {
         const haystack = normalize(
-            [t.title, t.titleAr, ...t.keywords, ...t.lessons.flatMap((l) => [l.title, l.course, l.unit ?? ''])].join(' '),
+            [t.title, t.titleAr, ...t.keywords, ...sectionLabels(t), ...t.lessons.flatMap((l) => [l.title, l.course, l.unit ?? ''])].join(' '),
         );
         return words.every((w) => haystack.includes(w));
     });
@@ -753,7 +841,7 @@ export function suggest(query: string, limit = 6): Suggestion[] {
     const starts: Suggestion[] = [];
     const words: Suggestion[] = [];
     for (const topic of TOPICS) {
-        for (const label of [topic.title, topic.titleAr, ...topic.keywords]) {
+        for (const label of [topic.title, topic.titleAr, ...topic.keywords, ...sectionLabels(topic)]) {
             const n = normalize(label);
             if (seen.has(n) || n === q) continue;
             if (n.startsWith(q)) starts.push({ label, topic });

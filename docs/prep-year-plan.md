@@ -33,6 +33,8 @@
 4. أبنيه بنفس روح الدروس الأولى (سؤال قبل الشرح، ثم شرح، ثم أمثلة من كتابتنا، ثم تمارين متعددة)، والتفاصيل تختلف حسب الدرس.
 5. أحدّث حالته هنا.
 
+**طريقة الشغل لكل وحدة وقائمة الوحدة 1:** `docs/unit-workflow.md`.
+
 **الحالة:** ⬜ باقي · 🟡 جاري · ✅ تم
 
 **القواعد المشتركة بين الكتابين** تنكتب درس واحد في أول مكان تجي فيه، والمكان الثاني يرجع له (🔁).
@@ -50,17 +52,19 @@
 | 1.6 | Skills: previewing a text، taking notes، syllable stress → `/learn/previewing-notes-stress/eng-001` | RW + LS | مهارات | ✅ |
 | — | المهمة: profile of your family / talk about a famous person → `/learn/family-profile/eng-001` | RW + LS | تطبيق | ✅ |
 
+**مراجعة الطالب المستهدف (2026-11-17):** كل دروس الوحدة 1 فيها بوكسين «ثبّت المعلومة» (`anchor`) وسطر معنى عربي تحت أمثلة الشرح (`mean`)، وانحذف «جرب بنفسك» وذكر الكويز، وتمارين 1.6 B و C صارت 5 و4 أسئلة. التفاصيل في `docs/unit-workflow.md` القسم 9.
+
 ## الوحدة 2: Seasons
 | # | الدرس | الكتاب | النوع | الحالة |
 |---|---|---|---|---|
-| 2.1 | Nouns and adjectives + adjectives → `/learn/nouns-and-adjectives/eng-001` | RW + LS | قواعد | ✅ |
-| 2.2 | Noun phrases → `/learn/noun-phrases/eng-001` | RW | قواعد | ✅ |
-| 2.3 | Prepositional phrases → `/learn/prepositional-phrases/eng-001` | RW | قواعد | ✅ |
-| 2.4 | *There is / There are* (يرجع له 4.2) → `/learn/there-is-there-are/eng-001` | LS + RW | قواعد | ✅ |
-| 2.5 | Word order: subject–verb–adjective + punctuation (capitals، commas) → `/learn/word-order-and-punctuation/eng-001` | RW | كتابة | ✅ |
-| 2.6 | Vocabulary: weather، seasons، colours → `/learn/weather-seasons-colours/eng-001` | RW + LS | مفردات | ✅ |
-| 2.7 | Skills: scanning، predicting from visuals، sentence stress → `/learn/scanning-visuals-sentence-stress/eng-001` | RW + LS | مهارات | ✅ |
-| — | المهمة: weather in your city / describe photos of a place → `/learn/weather-in-your-city/eng-001` | RW + LS | تطبيق | ✅ |
+| 2.1 | Nouns and adjectives + adjectives → `/learn/nouns-and-adjectives/eng-001` | RW + LS | قواعد | ✅ بطريقة الوحدة 1 (2026-11-16): Adjective ← Before the noun / After be / very / Which place?، والملخص 1091px |
+| 2.2 | Noun phrases → `/learn/noun-phrases/eng-001` | RW | قواعد | ✅ بطريقة الوحدة 1 (2026-11-16): Noun phrase ← a / an / No a / + very / As subject (جو "العبارة تكبر")، والملخص 1097px |
+| 2.3 | Prepositional phrases → `/learn/prepositional-phrases/eng-001` | RW | قواعد | ✅ بطريقة الوحدة 1 (2026-11-16): جو "بطاقة طقس أبها"، خريطة Where? / When? / Numbers / Comma، والملخص 1054px |
+| 2.4 | *There is / There are* (يرجع له 4.2) → `/learn/there-is-there-are/eng-001` | LS + RW | قواعد | ✅ بطريقة الوحدة 1 (2026-11-16): جو "صورة كورنيش ينبع" (بلوك map)، خريطة There is / There are / Negative / Questions، والملخص 1071px |
+| 2.5 | Word order: subject–verb–adjective + punctuation (capitals، commas) → `/learn/word-order-and-punctuation/eng-001` | RW | كتابة | ✅ بطريقة الوحدة 1 (2026-11-16): جو "ورقة الطقس المصححة" (بلوك errors)، 3 أخطاء: الترتيب / الحرف الكبير / الفاصلة، والملخص 990px |
+| 2.6 | Vocabulary: weather، seasons، colours → `/learn/weather-seasons-colours/eng-001` | RW + LS | مفردات | ✅ بطريقة الوحدة 1 (2026-11-16): جو "النشرة الجوية"، خريطة rain → rainy / Hot · cold / Seasons / Colours (الألوان انضافت، ما كان لها شرح)، والملخص 1066px |
+| 2.7 | Skills: scanning، predicting from visuals، sentence stress → `/learn/scanning-visuals-sentence-stress/eng-001` | RW + LS | مهارات | ✅ بطريقة الوحدة 1 (2026-11-16): جو "قبل الرحلة إلى أبها"، خريطة Predict / Scan / Stress، والملخص 898px |
+| — | المهمة: weather in your city / describe photos of a place → `/learn/weather-in-your-city/eng-001` | RW + LS | تطبيق | ✅ بطريقة الوحدة 1 (2026-11-16): نفس قالب مهمة الوحدة 1، خريطة My city ← Writing (4 أجزاء بالترتيب) / Speaking (وصف صورة العلا)، والملخص 921px |
 
 ## الوحدة 3: Lifestyle
 | # | الدرس | الكتاب | النوع | الحالة |

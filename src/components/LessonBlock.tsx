@@ -2,6 +2,7 @@
 
 import { Breakdown, Formula, KINDS } from '@/components/SentenceParts'
 import LessonErrors from '@/components/LessonErrors'
+import LessonHub from '@/components/LessonHub'
 import FixCard from '@/components/FixCard'
 import { useLessonKey } from '@/components/LessonKey'
 import { recordPoints } from '@/lib/points'
@@ -75,7 +76,24 @@ function BlockView({ block, id, onCheck }: { block: Block; id: string; onCheck?:
             return (
                 <div style={{ background: '#ffffff', border: '1px solid #ecdcdd', borderRadius: '10px', padding: '10px 14px' }}>
                     <div dir="ltr" style={{ fontSize: '1.05rem', color: '#2A1A1D', whiteSpace: 'pre-line', lineHeight: 1.7 }}>{block.en}</div>
+                    {block.mean && <div style={{ fontSize: '0.88rem', color: '#9b8a8d', marginTop: '4px' }}>{block.mean}</div>}
                     {block.ar && <div style={{ fontSize: '0.92rem', color: '#6B5357', marginTop: '4px' }}>{block.ar}</div>}
+                </div>
+            )
+        case 'anchor':
+            return (
+                <div style={{ background: '#FFFDF5', border: '2px dashed #C9A227', borderRadius: '14px', padding: '14px 16px' }}>
+                    <div style={{ fontWeight: 'bold', fontSize: '1.12rem', color: PRIMARY }}>ثبّت المعلومة</div>
+                    <div style={{ fontSize: '0.8rem', color: '#8a6d1a', marginTop: '1px' }}>طبّقها ومستحيل تضيع المعلومة منك</div>
+                    <div style={{ fontSize: '0.95rem', fontWeight: 'bold', color: '#2A1A1D', margin: '10px 0 4px' }}>جيب ورقة وقلم، واكتب بخط يدك:</div>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        {block.lines.map((line, i) => (
+                            <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'baseline', padding: '8px 0', borderBottom: '1px solid #E9DFB8' }}>
+                                <span style={{ flexShrink: 0, color: '#C9A227', fontWeight: 'bold', fontSize: '0.95rem' }}>{i + 1}</span>
+                                <span dir="auto" style={{ flex: 1, minWidth: 0, fontSize: '1.02rem', lineHeight: 1.8, color: '#2A1A1D', fontWeight: 600, textAlign: 'start' }}>{line}</span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )
         case 'note':
@@ -117,6 +135,8 @@ function BlockView({ block, id, onCheck }: { block: Block; id: string; onCheck?:
             )
         case 'errors':
             return <LessonErrors title={block.title} items={block.items} fixed={block.fixed} renderBlocks={(blocks, prefix, done) => blocks.map((b, j) => <BlockView key={j} block={b} id={`${id}.${prefix}.${j}`} onCheck={done} />)} />
+        case 'hub':
+            return <LessonHub word={block.word} ar={block.ar} branches={block.branches} renderBlocks={(blocks, prefix, done) => blocks.map((b, j) => <BlockView key={j} block={b} id={`${id}.${prefix}.${j}`} onCheck={done} />)} />
         case 'fix':
             return <FixCard id={id} label={block.label} kind={block.kind} wrong={block.wrong} mark={block.mark} options={block.options} answer={block.answer} why={block.why} parts={block.parts} onSolved={onCheck} />
         case 'map':
@@ -126,7 +146,7 @@ function BlockView({ block, id, onCheck }: { block: Block; id: string; onCheck?:
         case 'formula':
             return <Formula parts={block.parts} />
         case 'breakdown':
-            return <Breakdown parts={block.parts} ar={block.ar} />
+            return <Breakdown parts={block.parts} ar={block.ar} mean={block.mean} />
         case 'heading':
             return <h2 style={{ fontSize: '1.3rem', color: PRIMARY, margin: '18px 0 0', paddingBottom: '6px', borderBottom: '2px solid #ecdcdd' }}>{block.text}</h2>
         case 'list': {

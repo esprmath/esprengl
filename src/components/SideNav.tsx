@@ -2,7 +2,9 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import type { Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
+import { checkIsAdmin } from '@/lib/admin'
 import EnglAssistant from '@/components/EnglAssistant'
 import LessonChat from '@/components/LessonChat'
 import Navbar from '@/components/Navbar'
@@ -25,10 +27,15 @@ const logoFont: React.CSSProperties = { fontFamily: "'Playfair Display', Georgia
  */
 export default function SideNav({ items, active, onSelect, bottomAction, ai }: { items?: SideNavItem[]; active?: string; onSelect?: (key: string) => void; bottomAction?: React.ReactNode; ai?: { course?: string; topic?: string; lesson?: string } }) {
     const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [isAdmin, setIsAdmin] = useState(false)
 
     useEffect(() => {
-        supabase.auth.getSession().then(({ data: { session } }) => setIsLoggedIn(!!session))
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => setIsLoggedIn(!!session))
+        const apply = (session: Session | null) => {
+            setIsLoggedIn(!!session)
+            checkIsAdmin(session?.user?.email || null).then(setIsAdmin)
+        }
+        supabase.auth.getSession().then(({ data: { session } }) => apply(session))
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => apply(session))
         return () => subscription.unsubscribe()
     }, [])
 
@@ -60,12 +67,25 @@ export default function SideNav({ items, active, onSelect, bottomAction, ai }: {
                     <StepsRoad items={items} active={active} onSelect={onSelect} />
                 ) : (
                     // برا الدروس: "تعلم كلمات" وتحتها "خطتي" بنفس شكل دوائر المراحل
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '26px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: isAdmin ? '18px' : '26px' }}>
                         <Link href="/words" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', color: '#ffffff', textDecoration: 'none' }}>
                             <span className="side-nav-circle" style={circleStyle}>📚</span>
                             <span style={circleLabel}>تعلم<br />كلمات</span>
                         </Link>
                         <EnglAssistant variant="circle" />
+                        {/* للمشرف بس: صفحة الطلاب وصفحة وش بحثوا عنه */}
+                        {isAdmin && (
+                            <>
+                                <Link href="/admin/students" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', color: '#ffffff', textDecoration: 'none' }}>
+                                    <span className="side-nav-circle" style={circleStyle}>🎓</span>
+                                    <span style={circleLabel}>الطلاب</span>
+                                </Link>
+                                <Link href="/admin/search" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', color: '#ffffff', textDecoration: 'none' }}>
+                                    <span className="side-nav-circle" style={circleStyle}>🔍</span>
+                                    <span style={circleLabel}>البحث</span>
+                                </Link>
+                            </>
+                        )}
                     </div>
                 )}
             </nav>

@@ -39,12 +39,20 @@ export default function WarmupQuestion({ warmup, lessonKey }: { warmup: Warmup; 
 
     if (!show) return null
 
-    const start = () => {
+    // نحفظ إنه جاوب بمجرد ما يختار، حتى لو طلع من الدرس قبل ما يضغط "ابدأ" ما يطلع له السؤال مرة ثانية
+    const remember = () => {
         try {
             localStorage.setItem(storageKey, '1')
         } catch {
             /* ما قدرنا نحفظ، بيطلع مرة ثانية بس */
         }
+    }
+    const pick = (i: number) => {
+        setPicked(i)
+        remember()
+    }
+    const start = () => {
+        remember()
         setShow(false)
     }
 
@@ -76,7 +84,7 @@ export default function WarmupQuestion({ warmup, lessonKey }: { warmup: Warmup; 
                         return (
                             <button
                                 key={i}
-                                onClick={() => !answered && setPicked(i)}
+                                onClick={() => !answered && pick(i)}
                                 disabled={answered}
                                 style={{
                                     textAlign: 'right',

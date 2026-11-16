@@ -39,6 +39,17 @@ export default function LessonShell({ header, children, footer, ai, hideExamples
         window.scrollTo({ top: 0 })
     }
 
+    // زر داخل الدرس (مثل آخر فرع في الخريطة) يقدر يفتح قسم: window.dispatchEvent(new CustomEvent('lesson-view', { detail: 'practice' }))
+    useEffect(() => {
+        const onGo = (e: Event) => {
+            const key = (e as CustomEvent<string>).detail
+            if (VIEWS.some((v) => v.key === key)) go(key)
+        }
+        window.addEventListener('lesson-view', onGo)
+        return () => window.removeEventListener('lesson-view', onGo)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
     return (
         <div className="with-side-nav" style={{ minHeight: '100dvh', color: '#2A1A1D' }}>
             <div className="top-nav-only">

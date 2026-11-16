@@ -157,7 +157,8 @@ export default function ChoiceExercise({
                         <span style={{ fontWeight: 'bold', fontSize: '1.05rem', color: score === items.length ? '#1E7A4A' : PRIMARY }}>
                             {score === items.length ? '🎉 ' : ''}نتيجتك {score} من {items.length}
                         </span>
-                        {allowRetry && (
+                        {/* صح من أول مرة: ما فيه داعي للإعادة */}
+                        {allowRetry && score < items.length && (
                             <button onClick={reset} style={{ background: '#ffffff', color: PRIMARY, border: `1px solid ${PRIMARY}`, borderRadius: '10px', padding: '8px 18px', fontWeight: 'bold', fontSize: '0.9rem', cursor: 'pointer' }}>
                                 حاول مرة ثانية
                             </button>

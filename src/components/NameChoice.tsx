@@ -29,7 +29,20 @@ const chip = (active: boolean) => ({
 /** فوق الأمثلة: اسم جاهز (Fahad أو Laura) أو اسم يكتبه الطالب، مع ولد أو بنت عشان الضمائر (He / She) */
 export function NamePicker() {
     const { choice, setChoice } = useContext(Ctx)
+    const [open, setOpen] = useState(false)
     const typed = choice.name && !READY_NAMES.some((r) => r.name === choice.name)
+    // مقفل افتراضيًا: سطر واحد صغير، عشان خريطة الدرس تطلع من أول شاشة على الجوال. يفتح لما يضغط "تغيير"
+    if (!open) {
+        return (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.88rem', color: '#6B5357' }}>
+                <span>اسم الشخصية في الأمثلة:</span>
+                <span dir="ltr" style={{ fontWeight: 'bold', color: PRIMARY }}>{choice.name || READY_NAMES.find((r) => r.girl === choice.girl)?.name || READY_NAMES[0].name}</span>
+                <button type="button" onClick={() => setOpen(true)} style={{ border: 'none', background: 'none', padding: 0, color: PRIMARY, fontWeight: 'bold', fontSize: '0.88rem', textDecoration: 'underline', cursor: 'pointer' }}>
+                    تغيير
+                </button>
+            </div>
+        )
+    }
     return (
         <div style={{ background: '#ffffff', border: '1px dashed #E4A3AB', borderRadius: '12px', padding: '10px 14px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontWeight: 'bold', color: PRIMARY, fontSize: '0.95rem' }}>اسم الشخصية في الأمثلة:</span>

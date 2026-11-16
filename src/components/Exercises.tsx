@@ -31,7 +31,7 @@ function RevealExercise({ ex }: { ex: Exercise }) {
             {/* الكتابة تحت كل سؤال للمعتمدين، وغيرهم يشوف تنبيه واحد بس */}
             <p style={{ margin: '0 0 12px', fontSize: '0.8rem', color: '#9b8a8d' }}>
                 {!AI_ENABLED ? (
-                    `🤖 كتابة الجواب وتصحيحه بالذكاء ${AI_COMING_SOON}.`
+                    'حلّها على ورقتك، وبعدها اضغط Show answer وقارن جوابك.'
                 ) : access === 'allowed' ? (
                     '✍️ اكتب جوابك تحت كل سؤال واضغط تحقق، والذكاء يقول لك صح أو غلط.'
                 ) : access === 'loading' ? null : (
@@ -255,7 +255,7 @@ export default function Exercises({ exercises }: { exercises: Exercise[] }) {
 
             {locked && writingIdx.length > 0 && (
                 <div style={{ marginTop: '18px' }}>
-                    <div style={{ fontSize: '0.88rem', color: '#6B5357', marginBottom: '6px' }}>✍️ تمارين كتابة اختيارية، وما تنحسب نقاطها:</div>
+                    <div style={{ fontSize: '0.88rem', color: '#6B5357', marginBottom: '6px' }}>تمارين كتابة اختيارية تحلها على ورقتك، وما تنحسب نقاطها:</div>
                     {writingIdx.map((i) => (
                         <details key={i} style={{ marginBottom: '8px' }}>
                             <summary dir="ltr" style={{ cursor: 'pointer', color: PRIMARY, fontWeight: 'bold', fontSize: '0.92rem', textAlign: 'right' }}>{exercises[i].title}</summary>
