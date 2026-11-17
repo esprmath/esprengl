@@ -69,13 +69,13 @@
 ## الوحدة 3: Lifestyle
 | # | الدرس | الكتاب | النوع | الحالة |
 |---|---|---|---|---|
-| 3.1 | Time expressions + prepositions of time → `/learn/time-expressions/eng-001` | RW + LS | قواعد | ✅ |
-| 3.2 | Parts of a sentence → `/learn/parts-of-a-sentence/eng-001` | RW | قواعد | ✅ |
-| 3.3 | The present simple (+ نطق ‎-s / -es) → `/learn/present-simple/eng-001` | RW + LS | قواعد | ✅ |
-| 3.4 | Main ideas and details → `/learn/main-ideas-and-details/eng-001` | RW | كتابة | ✅ |
-| 3.5 | Vocabulary: daily activities، study، verb collocations → `/learn/daily-activities-collocations/eng-001` | RW + LS | مفردات | ✅ |
-| 3.6 | Skills: annotating، listening for main ideas، intonation in questions → `/learn/annotating-main-ideas-intonation/eng-001` | RW + LS | مهارات | ✅ |
-| — | المهمة: life of a student / interview students for a survey → `/learn/life-of-a-student/eng-001` | RW + LS | تطبيق | ✅ |
+| 3.1 | Time expressions + prepositions of time → `/learn/time-expressions/eng-001` | RW + LS | قواعد | ✅ بطريقة الوحدة 1 والطالب المستهدف (2026-11-17): جو "يوم طالب"، خريطة When؟ ← at / in / on (مع every و on Fridays) / Which one؟، بوكسين «ثبّت المعلومة»، سطر معنى تحت كل مثال، بدون «جرب بنفسك». الملخص 1076px |
+| 3.2 | Parts of a sentence → `/learn/parts-of-a-sentence/eng-001` | RW | قواعد | ✅ بطريقة الوحدة 1 والطالب المستهدف (2026-11-17): جو "جملة سعد تكبر"، خريطة Sentence ← S + V / Object / Where? When? / Order (تمشي بالترتيب)، بوكسين «ثبّت المعلومة»، سطر معنى تحت كل مثال، بدون «جرب بنفسك». الملخص 1053px |
+| 3.3 | The present simple (+ نطق ‎-s / -es) → `/learn/present-simple/eng-001` | RW + LS | قواعد | ✅ بطريقة الوحدة 1 والطالب المستهدف (2026-11-17): جو "روتين العائلة"، خريطة Routine ← Positive / The -s (إملاء ونطق) / Negative / Questions (مع wh-)، بوكسين «ثبّت المعلومة»، سطر معنى تحت كل مثال، بدون «جرب بنفسك». الملخص 1083px (احتاج تقليص: جدول الإملاء بدون صف حرف العلة، والنطق في سطر) |
+| 3.4 | Main ideas and details → `/learn/main-ideas-and-details/eng-001` | RW | كتابة | ✅ بطريقة الوحدة 1 والطالب المستهدف (2026-11-17): جو "مظلة البارقراف"، خريطة Paragraph ← Main idea / Details / Relevant / Which one?، بدون بطاقات `fix` (أسئلة `check` بدلها)، بوكسين «ثبّت المعلومة»، وأسئلة التمارين تحمل سياقها داخلها. الملخص 872px |
+| 3.5 | Vocabulary: daily activities، study، verb collocations → `/learn/daily-activities-collocations/eng-001` | RW + LS | مفردات | ✅ بطريقة الوحدة 1 والطالب المستهدف (2026-11-17): جو "يوم طالب"، خريطة Day ← have / go / take / do، وبعدها المواد الدراسية (جدول + سؤالين) وبطاقة "يوم طالب كامل"، بوكسين «ثبّت المعلومة» (go home، do homework). الملخص 1071px (احتاج حذف الصيغ المرئية للأفعال الأربعة، و`across` لجدول المواد) |
+| 3.6 | Skills: annotating، intonation in questions → `/learn/annotating-main-ideas-intonation/eng-001` (الرابط باقي بدون تغيير) | RW + LS | مهارات | ✅ بطريقة الوحدة 1 والطالب المستهدف (2026-11-17): **قرار المالك: انحذف الاستماع (Listening for main ideas)**. جو "قبل الاستبيان"، خريطة Skills ← Annotate / Intonation (فرعين)، بوكسين «ثبّت المعلومة»، بدون `fix`. الملخص 532px (قصير لأن الدرس فرعين) |
+| — | المهمة: life of a student / interview students for a survey → `/learn/life-of-a-student/eng-001` | RW + LS | تطبيق | ✅ بطريقة الوحدة 1 والطالب المستهدف (2026-11-17): نفس قالب مهمة الوحدتين 1 و2، خريطة Student ← Writing (3 أجزاء بالترتيب مع بطاقة `map` وكروت «قبل ما ترسل») / Speaking (استبيان بأربع خطوات)، بوكسين «ثبّت المعلومة»، 3 تمارين اختيار (منها «رتّب البارقراف») وكتابة اختيارية. الملخص 876px |
 
 ## الوحدة 4: Places
 | # | الدرس | الكتاب | النوع | الحالة |
